@@ -1,6 +1,9 @@
 import {Hono} from 'hono'
 import {OpenAPIHono, createRoute, z} from '@hono/zod-openapi'
 import {swaggerUI} from '@hono/swagger-ui'
+import {hc} from 'hono/client'
+import {AppRouterssss} from '../../users/src/'
+
 import {zValidator} from "@hono/zod-validator";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>()
@@ -23,9 +26,14 @@ app.openapi(
         }
     }),
 
-    (c) => {
+    async (c) => {
+        const url = new URL(c.req.url)
+        const baseUrl = `${url.protocol}//${url.hostname}`
+        const client = hc<AppRouterssss>(baseUrl, {fetch: c.env.USER_SERVICE.fetch.bind(c.env.USER_SERVICE)})
+        const res = await client.test.$get();
+        const  fd =await res.json()
         return c.json({
-            message: 'hello'
+            message: fd.test
         })
     }
 )

@@ -1,8 +1,6 @@
-name = "auth"
+name = "users"
 compatibility_date = "2024-04-03"
-services = [
-  { binding = "USER_SERVICE", service = "users" }
-]
+
 # [vars]
 # MY_VAR = "my-variable"
 
@@ -21,4 +19,3 @@ services = [
 
 # [ai]
 # binding = "AI"
-
