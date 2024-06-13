@@ -1,14 +1,20 @@
-import {Hono} from 'hono'
-import { cors } from 'hono/cors'
+import { WorkerEntrypoint, RpcTarget } from 'cloudflare:workers';
 
-const app = new Hono()
-app.use('*', cors())
-const appRouterssss = app.get('/', (c) => {
-    return c.text('Hello Hono!')
-}).get('/test', (c) => {
-    return c.json({test: 'test'})
-})
+class User extends RpcTarget {
+	#value = 0;
 
-export default app
+	increment(amount) {
+		this.#value += amount;
+		return this.#value;
+	}
 
-export type AppRouterssss = typeof appRouterssss
+	get value() {
+		return this.#value;
+	}
+}
+
+export class UserService extends WorkerEntrypoint {
+	async newUser() {
+		return new User();
+	}
+}
