@@ -1,0 +1,223 @@
+{
+    "info": {
+        "title": "Auth API",
+        "version": "v1"
+    },
+    "openapi": "3.1.0",
+    "components": {
+        "schemas": {},
+        "parameters": {}
+    },
+    "paths": {
+        "/auth/createDeviceUuid": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "description": "Create device uuid",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "deviceType": {
+                                        "type": "string"
+                                    },
+                                    "osName": {
+                                        "type": "string"
+                                    },
+                                    "osVersion": {
+                                        "type": "string"
+                                    },
+                                    "deviceModel": {
+                                        "type": "string"
+                                    },
+                                    "isPhysicalDevice": {
+                                        "type": "string"
+                                    },
+                                    "appVersion": {
+                                        "type": "string"
+                                    },
+                                    "ipAddress": {
+                                        "type": "string"
+                                    },
+                                    "fcmToken": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "fcmToken"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/reqOtp": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "deviceUuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "deviceUuid"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verifyOtp": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "deviceUuid": {
+                                        "type": "string"
+                                    },
+                                    "otp": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "deviceUuid",
+                                    "otp"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "accessToken"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/test": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

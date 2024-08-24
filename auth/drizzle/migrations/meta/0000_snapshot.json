@@ -1,50 +1,43 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "212c7fcf-3659-40f2-aaff-e34a63d46ab4",
+  "id": "b7d1c507-7dde-41d5-bf2f-2bcf7a2c9ca9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "auth": {
-      "name": "auth",
+    "auths": {
+      "name": "auths",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
         "userId": {
           "name": "userId",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "deviceId": {
           "name": "deviceId",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "lastRefresh": {
           "name": "lastRefresh",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(strftime('%s', 'now'))"
         }
       },
-      "indexes": {
-        "auth_id_unique": {
-          "name": "auth_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
@@ -54,7 +47,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
@@ -63,7 +56,7 @@
           "name": "deviceType",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "osName": {
@@ -116,32 +109,24 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "devices_id_unique": {
-          "name": "devices_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "otp": {
-      "name": "otp",
+    "otps": {
+      "name": "otps",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
         "otp": {
           "name": "otp",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -162,21 +147,14 @@
         },
         "expiredAt": {
           "name": "expiredAt",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(strftime('%s', 'now'))"
         }
       },
-      "indexes": {
-        "otp_id_unique": {
-          "name": "otp_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
@@ -187,5 +165,8 @@
     "schemas": {},
     "tables": {},
     "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }

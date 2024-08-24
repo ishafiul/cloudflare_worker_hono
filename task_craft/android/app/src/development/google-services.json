@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "287218143583",
+    "project_id": "task-craft-dev",
+    "storage_bucket": "task-craft-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287218143583:android:e44a1c3c1f68accc1126ea",
+        "android_client_info": {
+          "package_name": "info.ishaf.taskcraft.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287218143583-1hjqp1au1a6ra8gj6gdn1766m73r0k0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6itGFxS4E_RSRnJhHyJnFxWpRPaCdWI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287218143583-1hjqp1au1a6ra8gj6gdn1766m73r0k0q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "287218143583-30k40rl4cjopjlcli39m0nnj2vgha4ls.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "info.ishaf.taskcraft.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `devices_fcmToken_unique` ON `devices` (`fcmToken`);
