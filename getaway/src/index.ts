@@ -6,9 +6,15 @@ import {logger} from 'hono/logger';
 import {jwt} from "hono/jwt";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>()
-app.use(logger())
-app.get('/', (c) => c.text('Api Server'))
 
+app.get('/', (c) => c.text('Api Server'))
+app.openAPIRegistry.registerComponent("securitySchemes", "AUTH", {
+    type: "http",
+    name: "Authorization",
+    scheme: "bearer",
+    in: "header",
+    description: "Bearer token",
+});
 app.get(
     '/ui',
     swaggerUI({

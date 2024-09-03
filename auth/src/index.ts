@@ -45,7 +45,7 @@ export class Auth extends RpcTarget {
 			id: uuidv4(),
 			deviceType: payload.deviceType,
 			deviceModel: payload.deviceModel,
-			isPhysicalDevice: payload.isPhysicalDevice,
+			isPhysicalDevice: payload.isPhysicalDevice ? "true" : "false",
 			osName: payload.osName,
 			appVersion: payload.appVersion,
 			ipAddress: payload.ipAddress,
@@ -56,10 +56,11 @@ export class Auth extends RpcTarget {
 			set: {
 				deviceType: payload.deviceType,
 				deviceModel: payload.deviceModel,
-				isPhysicalDevice: payload.isPhysicalDevice,
 				osName: payload.osName,
 				appVersion: payload.appVersion,
+				isPhysicalDevice: payload.isPhysicalDevice ? "true" : "false",
 				ipAddress: payload.ipAddress,
+				fcmToken: payload.fcmToken,
 				osVersion: payload.osVersion
 			}
 		});
@@ -69,43 +70,52 @@ export class Auth extends RpcTarget {
 	}
 
 	async reqOtp(payload: RequestOtpDto, userInfo: { id: string, email: string }): Promise<{ otp: number }> {
-		const device = await this.getDevice(payload.deviceUuid)
+		// Step 1: Check if the device exists
+		const device = await this.getDevice(payload.deviceUuid);
 		if (device === undefined) {
-			throw new Error('device not found');
+			throw new Error('Device not found');
 		}
-		await this.db.delete(auths).where(eq(auths.userId, userInfo.id))
-		const otp = await this.getOtp(payload.deviceUuid, payload.email)
-		if (otp == undefined) {
-			const otp = generateOtp(5)
+
+		// Step 2: Delete existing auths for the user
+		await this.db.delete(auths).where(eq(auths.userId, userInfo.id));
+
+		// Step 3: Try to get an existing OTP for the device and email
+		let otp = await this.getOtp(payload.deviceUuid, payload.email);
+
+		// Step 4: If no OTP exists, generate a new one
+		if (otp === undefined) {
+			const newOtp = generateOtp(5);
 			await this.insertOtp({
-				otp: parseInt(otp),
+				otp: parseInt(newOtp),
 				email: payload.email,
 				deviceUuId: payload.deviceUuid
-			})
+			});
 			return {
-				otp: parseInt(otp)
-			}
+				otp: parseInt(newOtp)
+			};
 		}
-		// check is [otp.expiredAt] expired or not
+
+		// Step 5: Check if the existing OTP has expired
 		if (otp.expiredAt !== null && otp.expiredAt.toISOString() < new Date().toISOString()) {
-			await this.updateOtp(otp.id)
+			await this.updateOtp(otp.id); // Mark the OTP as used or expired
 			return {
 				otp: otp.otp
-			}
+			};
 		}
+
+		// Step 6: If OTP is still valid, re-insert it (optional, depending on your logic)
 		await this.insertOtp({
 			otp: otp.otp,
 			email: payload.email,
 			deviceUuId: payload.deviceUuid
-		})
+		});
 		return {
 			otp: otp.otp
-		}
+		};
 	}
 
-	async verifyOtp(payload: VerifyOtpDto) {
-		const userService = this.#env.USER_SERVICE.newUser();
-		const user = await userService.findUserByEmail(payload.email)
+
+	async verifyOtp(payload: VerifyOtpDto, user: { id: string, email: string }) {
 		if (user === undefined) {
 			throw new Error('user not found');
 		}
@@ -135,6 +145,20 @@ export class Auth extends RpcTarget {
 			id: auths.id
 		})
 		return auth[0];
+	}
+
+	async logout(authId: string) {
+		const auth = await this.db.select().from(auths).where(eq(auths.id, authId)).get();
+		if (auth === undefined) {
+			return false
+		}
+		try {
+			await this.db.delete(auths).where(eq(auths.id, authId))
+			return true
+		} catch (e) {
+			return false
+		}
+
 	}
 
 	private async getDevice(deviceId: string) {

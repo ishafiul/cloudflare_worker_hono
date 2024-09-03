@@ -6,7 +6,7 @@ import {users} from "../drizzle/schema";
 import {eq} from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
 
-export class Auth extends RpcTarget {
+export class User extends RpcTarget {
 	#env: Bindings;
 	private readonly db: LibSQLDatabase;
 
@@ -63,7 +63,7 @@ export class Auth extends RpcTarget {
 export class UserService extends WorkerEntrypoint<Bindings> {
 	async newUser() {
 
-		return new Auth(this.env);
+		return new User(this.env);
 	}
 }
 

@@ -6,19 +6,22 @@ import {decode, sign, verify} from 'hono/jwt'
 import {VerifyOtpDto} from "../../../../auth/src/dto/verify-otp.dto";
 import {HTTPException} from 'hono/http-exception'
 
-export async function createDeviceUuidHandler(c: Context<{ Bindings: Bindings }>) {
+export async function createDeviceUuidHandler(c: Context<{ Bindings: Bindings } >) {
     const auth = await c.env.AUTH_SERVICE.newAuth();
     const body = await c.req.json<CreateDeviceUuidDto>()
 
     const deviceUuidEntity = await auth.createDeviceUuid(body);
+    if(deviceUuidEntity === undefined) {
+        return c.json({message: "create device uuid failed"}, 422)
+    }
     return c.json(deviceUuidEntity, 200)
 }
 
 export async function reqOtpHandler(c: Context<{ Bindings: Bindings }>) {
-    const auth = await c.env.AUTH_SERVICE.newAuth();
-    const mailService = await c.env.EMAIL_SERVICE.newEmail();
+    let auth = await c.env.AUTH_SERVICE.newAuth();
+    let mailService = await c.env.EMAIL_SERVICE.newEmail();
     const body = await c.req.json<RequestOtpDto>()
-    const userService = await c.env.USER_SERVICE.newUser();
+    let userService = await c.env.USER_SERVICE.newUser();
 
     const user = await userService.findUserOrCreate(body.email)
     if (user === undefined) {
@@ -42,11 +45,14 @@ export async function reqOtpHandler(c: Context<{ Bindings: Bindings }>) {
 }
 
 export async function verifyOtpHandler(c: Context<{ Bindings: Bindings }>) {
-    const authService = await c.env.AUTH_SERVICE.newAuth();
+    let authService = await c.env.AUTH_SERVICE.newAuth();
     const body = await c.req.json<VerifyOtpDto>()
+    let userService = await c.env.USER_SERVICE.newUser();
+
+    const user = await userService.findUserOrCreate(body.email)
     let auth: { id: string }
     try {
-        auth = await authService.verifyOtp(body);
+        auth = await authService.verifyOtp(body, user);
     } catch (e: any) {
         throw new HTTPException(422, {
             message: e.message
@@ -59,3 +65,5 @@ export async function verifyOtpHandler(c: Context<{ Bindings: Bindings }>) {
         accessToken: await sign(jwtPayload, c.env.JWT_SECRET,),
     }, 200);
 }
+
+

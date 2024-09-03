@@ -109,7 +109,8 @@ class AppStateService implements IAppStateService {
     if (appState?.user == null) {
       return false;
     }
-    if (appState?.user?.accessToken == null) {
+    if (appState?.user?.accessToken == null ||
+        appState?.user?.accessToken == '') {
       return false;
     } else {
       return true;

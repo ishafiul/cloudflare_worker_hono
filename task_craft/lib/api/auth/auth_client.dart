@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/delete_auth_logout_response.dart';
 import '../models/object_dto.dart';
 import '../models/object_dto2.dart';
 import '../models/object_dto3.dart';
@@ -18,24 +19,26 @@ part 'auth_client.g.dart';
 abstract class AuthClient {
   factory AuthClient(Dio dio, {String? baseUrl}) = _AuthClient;
 
+  /// Create device uuid.
+  ///
   /// [body] - Name not received and was auto-generated.
   @POST('/auth/createDeviceUuid')
   Future<PostAuthCreateDeviceUuidResponse> postAuthCreateDeviceUuid({
-    @Body() ObjectDto? body,
-    @Extras() Map<String, dynamic>? extras,
+    @Body() required ObjectDto body,
   });
 
   /// [body] - Name not received and was auto-generated.
   @POST('/auth/reqOtp')
   Future<PostAuthReqOtpResponse> postAuthReqOtp({
     @Body() ObjectDto2? body,
-    @Extras() Map<String, dynamic>? extras,
   });
 
   /// [body] - Name not received and was auto-generated.
   @POST('/auth/verifyOtp')
   Future<PostAuthVerifyOtpResponse> postAuthVerifyOtp({
     @Body() ObjectDto3? body,
-    @Extras() Map<String, dynamic>? extras,
   });
+
+  @DELETE('/auth/logout')
+  Future<DeleteAuthLogoutResponse> deleteAuthLogout();
 }

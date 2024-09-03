@@ -6,7 +6,7 @@ export const CreateDeviceUuidSchema = z.object({
 	osName: z.string().optional(),
 	osVersion: z.string().optional(),
 	deviceModel: z.string().optional(),
-	isPhysicalDevice: z.string().optional(),
+	isPhysicalDevice: z.boolean().optional(),
 	appVersion: z.string().optional(),
 	ipAddress: z.string().optional(),
 	fcmToken: z.string(),

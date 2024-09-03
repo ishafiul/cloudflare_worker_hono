@@ -6,16 +6,11 @@ import 'package:task_craft/module/user/domain/usecase/get_user_me.dart';
 part 'user_me_state.dart';
 
 class UserMeCubit extends Cubit<UserMeState> {
-  late final IUserRepository _repository;
-
-  UserMeCubit({required IUserRepository userRepository})
-      : super(UserMeInitial()) {
-    _repository = userRepository;
-  }
+  UserMeCubit() : super(UserMeInitial());
 
   Future<void> getUserMe() async {
-    emit(UserMeLoading());
-    await _getUserMe();
+   /* emit(UserMeLoading());
+    await _getUserMe();*/
   }
 
   Future<void> syncUserMe() async {
@@ -23,7 +18,7 @@ class UserMeCubit extends Cubit<UserMeState> {
   }
 
   Future<void> _getUserMe() async {
-    final useCase = GetUserMe(userRepository: _repository);
+   /* final useCase = GetUserMe(userRepository: _repository);
     final result = await useCase.call();
     try {
       emit(UserMeLoaded(userMe: result));
@@ -33,6 +28,6 @@ class UserMeCubit extends Cubit<UserMeState> {
           message: e.toString(),
         ),
       );
-    }
+    }*/
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:task_craft/app/app_router.dart';
+import 'package:task_craft/core/service/local/app_state.dart';
 
 /// Base [Interceptor] for [Dio]. This interceptor is responsible for
 /// adding the `Authorization` header. If any request receives a response with a `401` status code,
@@ -10,7 +11,8 @@ class BaseInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    const String token = '';
+    final appState = AppStateService();
+    final String? token = await appState.getUserAccessToken();
     options.headers['Authorization'] = 'Bearer $token';
 
     super.onRequest(options, handler);
@@ -27,6 +29,8 @@ class BaseInterceptor extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
+      router.go('/auth');
+      return;
       final dio = Dio();
       try {
         const String newToken = '';

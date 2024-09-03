@@ -8,7 +8,10 @@ import 'package:task_craft/core/config/colors.dart';
 import 'package:task_craft/core/utils/extention.dart';
 import 'package:task_craft/core/widgets/button/button.dart';
 import 'package:task_craft/core/widgets/button/enums.dart';
+import 'package:task_craft/core/widgets/snackbar.dart';
 import 'package:task_craft/core/widgets/spinner/fade_dots.dart';
+import 'package:task_craft/module/auth/cubit/request_otp/request_otp_cubit.dart';
+import 'package:task_craft/module/auth/cubit/verify_otp/verify_otp_cubit.dart';
 import 'package:task_craft/module/user/domain/cubit/user_me/user_me_cubit.dart';
 
 class VerifyOtpScreen extends HookWidget {
@@ -51,7 +54,7 @@ class VerifyOtpScreen extends HookWidget {
           isBlock: true,
           onPressed: isButtonActive.value
               ? () {
-                 /* if (otpText.value.length == 5) {
+                  if (otpText.value.length == 5) {
                     FocusManager.instance.primaryFocus?.unfocus();
 
                     final email = context.read<RequestOtpCubit>().state
@@ -68,20 +71,12 @@ class VerifyOtpScreen extends HookWidget {
                             .deviceUuid
                         : null;
 
-                    final userId = context.read<RequestOtpCubit>().state
-                            is RequestOtpSuccess
-                        ? (context.read<RequestOtpCubit>().state
-                                as RequestOtpSuccess)
-                            .userId
-                        : null;
-
                     context.read<VerifyOtpCubit>().verifyOtp(
                           otp: int.parse(otpText.value),
                           email: email!,
                           deviceUuid: deviceUuid!,
-                          userId: userId!,
                         );
-                  }*/
+                  }
                 }
               : null,
           child: const Text("Continue"),
@@ -91,7 +86,7 @@ class VerifyOtpScreen extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Confirm your number"),
+        title: const Text("Confirm your OTP"),
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(
@@ -103,7 +98,7 @@ class VerifyOtpScreen extends HookWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              /*Container(
+              Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
@@ -115,6 +110,13 @@ class VerifyOtpScreen extends HookWidget {
                         router.go('/');
                         await context.read<UserMeCubit>().getUserMe();
                       }
+                      if (state is VerifyOtpError) {
+                        await showSnackBar(
+                          message: state.message,
+                          type: SnackBarType.error,
+                          withIcon: true,
+                        );
+                      }
                     },
                     builder: (context, state) {
                       if (state is VerifyOtpLoading) {
@@ -124,7 +126,7 @@ class VerifyOtpScreen extends HookWidget {
                     },
                   ),
                 ),
-              ),*/
+              ),
             ],
           ),
         ),
@@ -132,7 +134,7 @@ class VerifyOtpScreen extends HookWidget {
       body: ListView(
         children: [
           16.verticalSpace,
-          /*Center(
+          Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 250),
               child: BlocBuilder<RequestOtpCubit, RequestOtpState>(
@@ -157,7 +159,7 @@ class VerifyOtpScreen extends HookWidget {
                 },
               ),
             ),
-          ),*/
+          ),
           16.verticalSpace,
           Padding(
             padding: 24.paddingHorizontal(),

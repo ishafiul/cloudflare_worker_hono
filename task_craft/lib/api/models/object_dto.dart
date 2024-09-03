@@ -14,7 +14,7 @@ class ObjectDto with _$ObjectDto {
     required String osName,
     required String osVersion,
     required String deviceModel,
-    required String isPhysicalDevice,
+    required bool isPhysicalDevice,
     required String appVersion,
     required String ipAddress,
     required String fcmToken,

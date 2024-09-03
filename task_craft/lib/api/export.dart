@@ -12,6 +12,7 @@ export 'models/post_auth_req_otp_response.dart';
 export 'models/object_dto2.dart';
 export 'models/post_auth_verify_otp_response.dart';
 export 'models/object_dto3.dart';
+export 'models/delete_auth_logout_response.dart';
 export 'models/get_auth_test_response.dart';
 // Root client
 export 'rest_client.dart';

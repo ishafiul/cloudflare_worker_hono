@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:logger/logger.dart';
 import 'package:task_craft/core/config/env/env.dart';
 import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/utils/isar_db.dart';
+
+import 'api/export.dart';
 
 /// show console log with [Logger].
 Logger logger = Logger(

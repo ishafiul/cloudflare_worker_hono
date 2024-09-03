@@ -14,7 +14,5 @@ abstract class ClientClient {
   factory ClientClient(Dio dio, {String? baseUrl}) = _ClientClient;
 
   @GET('/auth/test')
-  Future<GetAuthTestResponse> getAuthTest({
-    @Extras() Map<String, dynamic>? extras,
-  });
+  Future<GetAuthTestResponse> getAuthTest();
 }

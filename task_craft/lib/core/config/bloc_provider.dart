@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:task_craft/app/app.dart';
 import 'package:task_craft/core/snackbar/cubit/snack_bar_cubit.dart';
+import 'package:task_craft/module/auth/cubit/logout/logout_cubit.dart';
+import 'package:task_craft/module/auth/cubit/request_otp/request_otp_cubit.dart';
+import 'package:task_craft/module/auth/cubit/verify_otp/verify_otp_cubit.dart';
 import 'package:task_craft/module/user/domain/cubit/user_me/user_me_cubit.dart';
 
 /// [Provider] is a [Singleton] that will provide [List] of [BlocProvider].
@@ -13,18 +16,22 @@ import 'package:task_craft/module/user/domain/cubit/user_me/user_me_cubit.dart';
 class Provider {
   /// [List] of [BlocProvider]
   List<BlocProvider> providers = [
-   /* BlocProvider<SnackBarCubit>(
+    BlocProvider<SnackBarCubit>(
       create: (BuildContext context) => SnackBarCubit(),
     ),
     BlocProvider<RequestOtpCubit>(
-      create: (BuildContext context) =>
-          RequestOtpCubit(repository: AuthRepository()),
+      create: (BuildContext context) => RequestOtpCubit(),
     ),
     BlocProvider<VerifyOtpCubit>(
-      create: (BuildContext context) =>
-          VerifyOtpCubit(repository: AuthRepository()),
+      create: (BuildContext context) => VerifyOtpCubit(),
     ),
-    BlocProvider<GoogleAuthCubit>(
+    BlocProvider<LogoutCubit>(
+      create: (BuildContext context) => LogoutCubit(),
+    ),
+    BlocProvider<UserMeCubit>(
+      create: (BuildContext context) => UserMeCubit(),
+    ),
+    /*BlocProvider<GoogleAuthCubit>(
       create: (BuildContext context) => GoogleAuthCubit(AuthRepository()),
     ),
     BlocProvider<LogoutCubit>(

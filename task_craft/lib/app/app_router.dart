@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:task_craft/core/presentation/page_not_found.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
-import 'package:task_craft/module/auth/presentation/auth_router.dart';
+import 'package:task_craft/module/auth/auth_router.dart';
 import 'package:task_craft/module/home/presentation/home_screen.dart';
 import 'package:task_craft/module/menu/presentation/menu_screen.dart';
 import 'package:task_craft/module/todo/presentation/todo_router.dart';
@@ -14,7 +14,7 @@ GoRouter router = GoRouter(
   errorBuilder: (context, state) {
     return const PageNotFound();
   },
-  initialLocation: '/',
+  initialLocation: '/auth/login',
   redirect: (context, state) async {
     final isLoggedIn = await AppStateService().isLoggedIn();
     if (isLoggedIn == false &&
@@ -27,7 +27,7 @@ GoRouter router = GoRouter(
             state.uri == Uri(path: '/auth/verify-otp'))) {
       return '/';
     }
-   /* if (isLoggedIn != true) {
+    /* if (isLoggedIn != true) {
       return '/auth/login';
     }*/
     return null;

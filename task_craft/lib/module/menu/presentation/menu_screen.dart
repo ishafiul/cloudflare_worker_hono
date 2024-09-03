@@ -10,6 +10,8 @@ import 'package:task_craft/core/utils/extention.dart';
 import 'package:task_craft/core/widgets/devider/divider.dart';
 import 'package:task_craft/core/widgets/devider/text_divider.dart';
 import 'package:task_craft/core/widgets/shimmer.dart';
+import 'package:task_craft/core/widgets/spinner/fade_dots.dart';
+import 'package:task_craft/module/auth/cubit/logout/logout_cubit.dart';
 import 'package:task_craft/module/user/domain/cubit/user_me/user_me_cubit.dart';
 
 class MenuScreen extends HookWidget {
@@ -18,14 +20,14 @@ class MenuScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = useState(false);
-    _animate() async {
+    animate() async {
       await AppStateService()
           .isLoggedIn()
           .then((value) => isLoggedIn.value = value);
     }
 
     useEffect(() {
-      _animate();
+      animate();
       return null;
     });
     return Scaffold(
@@ -97,40 +99,41 @@ class MenuScreen extends HookWidget {
             ),
           ),
           4.verticalSpace,
-         /* BlocBuilder<LogoutCubit, LogoutState>(
-            builder: (context, state) {
-              return Opacity(
-                opacity: state is LogoutLoading ? 0.4 : 1,
-                child: Padding(
-                  padding: 20.paddingHorizontal(),
-                  child: AppShimmer(
-                    isLoading: isLoggedIn.value,
-                    child: ListTile(
-                      onTap: state is LogoutLoading
-                          ? null
-                          : () {
-                              context.read<LogoutCubit>().logout();
-                            },
-                      leading: const Icon(CustomIcons.logout),
-                      title: state is LogoutLoading
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FadingFourSpinner(
-                                  color: CColor.text,
-                                  size: 20,
-                                ),
-                                8.horizontalSpace,
-                                const Text("Logout Loading"),
-                              ],
-                            )
-                          : const Text("Logout"),
+          if (isLoggedIn.value)
+            BlocBuilder<LogoutCubit, LogoutState>(
+              builder: (context, state) {
+                return Opacity(
+                  opacity: state is LogoutLoading ? 0.4 : 1,
+                  child: Padding(
+                    padding: 20.paddingHorizontal(),
+                    child: AppShimmer(
+                      isLoading: isLoggedIn.value,
+                      child: ListTile(
+                        onTap: state is LogoutLoading
+                            ? null
+                            : () {
+                                context.read<LogoutCubit>().logout();
+                              },
+                        leading: const Icon(CustomIcons.logout),
+                        title: state is LogoutLoading
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FadingFourSpinner(
+                                    color: CColor.text,
+                                    size: 20,
+                                  ),
+                                  8.horizontalSpace,
+                                  const Text("Logout Loading"),
+                                ],
+                              )
+                            : const Text("Logout"),
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),*/
+                );
+              },
+            ),
         ],
       ),
     );

@@ -10,7 +10,7 @@ part 'post_auth_create_device_uuid_response.g.dart';
 @Freezed()
 class PostAuthCreateDeviceUuidResponse with _$PostAuthCreateDeviceUuidResponse {
   const factory PostAuthCreateDeviceUuidResponse({
-    required String message,
+    required String deviceUuid,
   }) = _PostAuthCreateDeviceUuidResponse;
   
   factory PostAuthCreateDeviceUuidResponse.fromJson(Map<String, Object?> json) => _$PostAuthCreateDeviceUuidResponseFromJson(json);
