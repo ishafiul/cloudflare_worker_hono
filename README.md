@@ -16,7 +16,7 @@ Experiment with
 > [!NOTE]
 > I have already built a personal (private) project with this stack and deployed some services inside my Cloudflare worker. Therefore, I will not deploy all those services again. I will only deploy the services that are specifically needed to run this project and will reuse previously deployed services. However, I will include demo code for those services.
 
-## Auth
-link: https://auth.shafiulislam20.workers.dev/
+## Swagger link
+link: [https://auth.shafiulislam20.workers.dev/](https://getaway.shafiulislam20.workers.dev/ui)
 
 
