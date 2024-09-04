@@ -25,5 +25,6 @@ compatibility_flags = ["nodejs_compat"]
 services = [
     { binding = "AUTH_SERVICE", service = "image-search-auth", entrypoint = "AuthService" },
     { binding = "USER_SERVICE", service = "image-search-user", entrypoint = "UserService" },
-    { binding = "EMAIL_SERVICE", service = "image-search-mail", entrypoint = "EmailService" }
+    { binding = "EMAIL_SERVICE", service = "image-search-mail", entrypoint = "EmailService" },
+    { binding = "TODO_SERVICE", service = "todo", entrypoint = "TodoService" }
 ]

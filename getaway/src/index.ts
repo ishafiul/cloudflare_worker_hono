@@ -4,6 +4,7 @@ import {swaggerUI} from '@hono/swagger-ui'
 import authRoutes from "./modules/auth/auth.routes";
 import {logger} from 'hono/logger';
 import {jwt} from "hono/jwt";
+import todoRoutes from "./modules/todo/todo.routes";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>()
 
@@ -32,5 +33,6 @@ app.doc('/doc', {
 
 
 app.route('/auth', authRoutes)
+app.route('/todo', todoRoutes)
 
 export default app

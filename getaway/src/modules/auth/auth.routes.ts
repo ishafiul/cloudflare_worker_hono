@@ -6,8 +6,6 @@ import {RequestOtpDto, RequestOtpSchema} from "../../../../auth/src/dto/request-
 import {VerifyOtpDto, VerifyOtpSchema} from "../../../../auth/src/dto/verify-otp.dto";
 import {HTTPException} from "hono/http-exception";
 import {jwt, sign} from "hono/jwt";
-import {JWTPayload} from "hono/dist/types/utils/jwt/types";
-import {Context} from "hono";
 
 const authRoutes = new OpenAPIHono<{ Bindings: Bindings }>()
 
