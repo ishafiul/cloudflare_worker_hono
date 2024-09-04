@@ -1,0 +1,31 @@
+{
+	"name": "auth",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types",
+		"generate": "npx drizzle-kit generate",
+		"migrate": "tsx drizzle/migrate"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.4.5",
+		"@cloudflare/workers-types": "^4.20240614.0",
+		"@types/uuid": "^10.0.0",
+		"drizzle-kit": "^0.22.7",
+		"typescript": "^5.4.5",
+		"vitest": "1.5.0",
+		"wrangler": "^3.61.0"
+	},
+	"dependencies": {
+		"@libsql/client": "^0.6.2",
+		"dotenv": "^16.1.4",
+		"drizzle-orm": "^0.31.2",
+		"drizzle-zod": "^0.5.1",
+		"tsx": "^3.12.7",
+		"uuid": "^10.0.0"
+	}
+}
