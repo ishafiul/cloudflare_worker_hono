@@ -5,11 +5,11 @@ export const CreateTodoSchema = z.object({
 	title: z.string(),
 	description: z.string().optional(),
 	startTime: z.string(),
-	endTime: z.boolean(),
+	endTime: z.string(),
 	completedAt: z.string().optional(),
 	taskDate: z.string(),
-	status: z.string(),
+	status: z.enum(['pending', 'completed', 'in-progress']).optional(),
 	setAlarmBeforeMin: z.number().optional(),
 })
 
-export type CreateDeviceUuidDto = z.infer<typeof CreateTodoSchema>;
+export type CreateTodoDto = z.infer<typeof CreateTodoSchema>;
