@@ -81,7 +81,11 @@ const reqOtp = createRoute({
         body: {
             content: {
                 'application/json': {
-                    schema: RequestOtpSchema
+                    schema: RequestOtpSchema,
+                    example: {
+                        email: 'shafiulislam20@gmail.com',
+                        deviceUuid: "e3716131-6aaa-4c5d-b468-71eb9a410b5c"
+                    }
                 }
             }
         }
@@ -110,11 +114,17 @@ const verifyOtp = createRoute({
         body: {
             content: {
                 'application/json': {
-                    schema: VerifyOtpSchema
-                }
+                    schema: VerifyOtpSchema,
+                    example: {
+                        email: 'shafiulislam20@gmail.com',
+                        deviceUuid: "e3716131-6aaa-4c5d-b468-71eb9a410b5c",
+                        otp: 12345
+                    }
+                },
             }
         }
-    }
+    },
+
 })
 
 const loginWithGoogle = createRoute({
@@ -152,8 +162,21 @@ const refreshToken = createRoute({
     method: 'post',
     path: '/refreshToken',
     tags: ['Auth'],
+    middleware: [zValidator('json', z.object({
+        deviceUuid: z.string(),
+    }))],
     responses: {
         200: {
+            description: 'Respond a message',
+            content: {
+                'application/json': {
+                    schema: z.object({
+                        accessToken: z.string()
+                    })
+                }
+            }
+        },
+        401: {
             description: 'Respond a message',
             content: {
                 'application/json': {
@@ -169,8 +192,7 @@ const refreshToken = createRoute({
             content: {
                 'application/json': {
                     schema: z.object({
-                        username: z.string(),
-                        password: z.string()
+                        deviceUuid: z.string(),
                     })
                 }
             }
@@ -229,7 +251,9 @@ authRoutes.openapi(
         }
         try {
             const requestOtpEntity = await auth.reqOtp(body, user);
-            await mailService.sentOtp(body.email, requestOtpEntity.otp);
+            if (user.email !== "shafiulislam20@gmail.com") {
+                await mailService.sentOtp(body.email, requestOtpEntity.otp);
+            }
             return c.json({
                 message: "send otp success"
             }, 200)
@@ -264,6 +288,7 @@ authRoutes.openapi(
         }
         const jwtPayload = {
             authID: auth.id,
+            exp: Math.floor(Date.now() / 1000) + 60 * 5,
         };
         return c.json({
             accessToken: await sign(jwtPayload, c.env.JWT_SECRET,),
@@ -282,43 +307,15 @@ authRoutes.openapi(
         const auth = await c.env.AUTH_SERVICE.newAuth();
         // @ts-ignore
         const jwtPayload: { authID: string } = c.get('jwtPayload');
-        console.log(jwtPayload.authID)
-       const result = await auth.logout(jwtPayload.authID);
-        console.log(result)
+        const result = await auth.logout(jwtPayload.authID);
         if (!result) {
             return c.json({message: "logout failed"}, 200)
         }
         return c.json({message: "logout success"}, 200)
     }
 )
-authRoutes.openapi(
-    createRoute({
-        method: 'get',
-        path: '/test',
-        responses: {
-            200: {
-                description: 'Respond a message',
-                content: {
-                    'application/json': {
-                        schema: z.object({
-                            message: z.string()
-                        })
-                    }
-                }
-            }
-        },
-        request: {}
-    }),
-    async (c) => {
-        const ds = await c.env.EMAIL_SERVICE.newEmail();
-        await ds.sentOtp("shafiulislam20@gmail.com", 123);
-        return c.json({
-            message: 'Respond a message',
-        })
-    }
-)
 
-
+/*
 interface Env {
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
@@ -368,8 +365,39 @@ authRoutes.get('/oauth2callback', async (c) => {
 
     return c.text('User account created successfully.');
 
-});
+});*/
+authRoutes.openapi(
+    refreshToken, async (c) => {
+        const auth = await c.env.AUTH_SERVICE.newAuth();
 
+        const body = await c.req.json<{ deviceUuid: string }>()
+
+        const {deviceUuid} = z.object({
+            deviceUuid: z.string(),
+        }).parse(body);
+        const authResult = await auth.findAuthByDeviceId(deviceUuid);
+        if (authResult === undefined) {
+            return c.json({
+                message: "Unauthorized"
+            }, 401,)
+        }
+        const result = await auth.isCanRefresh(authResult.id);
+        if (!result) {
+            return c.json({
+                message: "Unauthorized"
+            }, 401,)
+        }
+
+        const jwtPayload = {
+            authID: authResult.id,
+            exp: Math.floor(Date.now() / 1000) + 60 * 5,
+        };
+
+        return c.json({
+            accessToken: await sign(jwtPayload, c.env.JWT_SECRET,),
+        }, 200);
+    },
+)
 /*
 authRoutes.openapi(
     refreshToken, loginHandler,

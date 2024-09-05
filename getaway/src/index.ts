@@ -25,7 +25,7 @@ app.get(
 
 app.doc('/doc', {
     info: {
-        title: 'Auth API',
+        title: 'Todo API',
         version: 'v1'
     },
     openapi: '3.1.0'
