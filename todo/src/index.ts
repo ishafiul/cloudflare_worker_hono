@@ -42,7 +42,7 @@ export class Todo extends RpcTarget {
 		const validatedData = validation.data;
 
 		try {
-			return this.db.insert(todos).values({
+			const data= await this.db.insert(todos).values({
 				id: uuidv4(),
 				userId: validatedData.userId,
 				title: validatedData.title,
@@ -54,6 +54,7 @@ export class Todo extends RpcTarget {
 				status: validatedData.status || 'pending',
 				setAlarmBeforeMin: validatedData.setAlarmBeforeMin || 5,
 			}).returning();
+			return data;
 		} catch (error) {
 			throw new Error('Failed to create todo');
 		}

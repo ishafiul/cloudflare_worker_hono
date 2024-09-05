@@ -33,6 +33,15 @@ app.doc('/doc', {
 
 
 app.route('/auth', authRoutes)
+
+
+app.use('/todo/*', (c, next) => {
+    const jwtMiddleware = jwt({
+        secret: c.env.JWT_SECRET,
+    })
+    // @ts-ignore
+    return jwtMiddleware(c, next)
+})
 app.route('/todo', todoRoutes)
 
 export default app

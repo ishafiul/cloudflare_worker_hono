@@ -11,13 +11,6 @@ import {ApiTodoEntitySchema} from "./entity/create-todo.entity";
 
 const todoRoutes = new OpenAPIHono<{ Bindings: Bindings }>()
 
-authRoutes.use('/*', (c, next) => {
-    const jwtMiddleware = jwt({
-        secret: c.env.JWT_SECRET,
-    })
-    // @ts-ignore
-    return jwtMiddleware(c, next)
-})
 
 todoRoutes.openapi(
     createRoute({
@@ -62,18 +55,20 @@ todoRoutes.openapi(
         }
     }),
     async (c) => {
-        const body = await c.req.json<ApiCreateTodoDto>();
+        const body = ApiCreateTodoDtoSchema.parse(await c.req.json());
 
         try {
             const todoService = await c.env.TODO_SERVICE.newTodo();
             // @ts-ignore
             const jwtPayload: { authID: string } = c.get('jwtPayload');
-            const reBody: CreateTodoDto & { userId: string } = {
-                ...body,
-                userId: jwtPayload.authID,
+            type CreateTodoDtoWithUserId = ApiCreateTodoDto & { userId: string };
+            const reBody: CreateTodoDtoWithUserId = {
+                ...body, // spreading the original body object
+                userId: jwtPayload.authID, // adding the userId
             };
+
             const todoEntity = await todoService.create(reBody)
-            const validatedTodoEntity = ApiTodoEntitySchema.parse(todoEntity);
+            const validatedTodoEntity = ApiTodoEntitySchema.parse(todoEntity[0]);
             return c.json(validatedTodoEntity, 200);
         } catch (error) {
             return c.json({message: "Failed to create todo"}, 422);
