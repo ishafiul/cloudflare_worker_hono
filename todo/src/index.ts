@@ -1,4 +1,4 @@
-import {WorkerEntrypoint, RpcTarget} from "cloudflare:workers";
+import {RpcTarget, WorkerEntrypoint} from "cloudflare:workers";
 import {drizzle, LibSQLDatabase} from "drizzle-orm/libsql";
 import {createClient} from "@libsql/client";
 import {Bindings} from "./config/bindings";
@@ -42,7 +42,7 @@ export class Todo extends RpcTarget {
 		const validatedData = validation.data;
 
 		try {
-			const data= await this.db.insert(todos).values({
+			const data = await this.db.insert(todos).values({
 				id: uuidv4(),
 				userId: validatedData.userId,
 				title: validatedData.title,
@@ -60,6 +60,16 @@ export class Todo extends RpcTarget {
 		}
 	}
 
+	async findById(id: string) {
+		try {
+			return await this.db
+				.select()
+				.from(todos)
+				.where(eq(todos.id, id));
+		} catch (error) {
+			throw new Error(`Failed to find todo with ID: ${id}`);
+		}
+	}
 
 	async update(id: string, updateDeviceUuidDto: Partial<CreateTodoDto>) {
 		const UpdateTodoSchema = CreateTodoSchema.partial();
