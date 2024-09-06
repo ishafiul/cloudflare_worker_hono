@@ -3,6 +3,7 @@ import 'package:task_craft/api/auth/auth_client.dart';
 import 'package:task_craft/api/models/refresh_token_dto.dart';
 import 'package:task_craft/app/app_router.dart';
 import 'package:task_craft/core/config/env/env.dart';
+import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 
 /// Base [Interceptor] for [Dio]. This interceptor is responsible for
@@ -14,7 +15,7 @@ class BaseInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final appState = AppStateService();
+    final appState = getIt<AppStateService>();
     final String? token = await appState.getUserAccessToken();
     options.headers['Authorization'] = 'Bearer $token';
 
@@ -36,7 +37,7 @@ class BaseInterceptor extends Interceptor {
       try {
         dio.options.baseUrl = EnvProd.host;
         final client = AuthClient(dio);
-        final appState = AppStateService();
+        final appState = getIt<AppStateService>();
 
         final deviceUuid = await appState.getUserRefreshToken();
         if (deviceUuid == null) {

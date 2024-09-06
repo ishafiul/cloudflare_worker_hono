@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:task_craft/api/models/verify_otp_dto.dart';
 import 'package:task_craft/api/rest_client.dart';
 import 'package:task_craft/core/config/env/env.dart';
+import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 import 'package:task_craft/core/utils/app_state_collection_isar.dart';
 
@@ -31,8 +32,11 @@ class VerifyOtpCubit extends Cubit<VerifyOtpState> {
         ),
       );
 
-      final appState = AppStateService();
-      await appState.initLocalDbUser(User());
+      final appState = getIt<AppStateService>();
+      final isInitialized = await appState.isDbInitialized();
+      if( isInitialized == false) {
+        await appState.initLocalDbUser(User());
+      }
       await appState.updateAccessToken(result.accessToken);
       await appState.updateDeviceUuid(deviceUuid);
       // await appState.updateUserID(result.userId);

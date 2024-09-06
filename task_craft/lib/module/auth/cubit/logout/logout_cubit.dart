@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:task_craft/api/rest_client.dart';
 import 'package:task_craft/core/config/env/env.dart';
+import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 import 'package:task_craft/core/utils/http_base_interceptor.dart';
 
@@ -19,12 +20,17 @@ class LogoutCubit extends Cubit<LogoutState> {
       final restClient = RestClient(dio, baseUrl: EnvProd.host);
 
       await restClient.auth.deleteAuthLogout();
-      final appState = AppStateService();
+      final appState = getIt<AppStateService>();
 
-      await appState.clearAll();
+     try {
+        await appState.updateAccessToken('');
+      } catch (e) {
+        print(e);
+      }
       emit(
         LogoutSuccess(),
       );
+
     } catch (e) {
       String errorMessage;
 

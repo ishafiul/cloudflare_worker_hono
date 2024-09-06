@@ -21,7 +21,7 @@ part 'auth_client.g.dart';
 abstract class AuthClient {
   factory AuthClient(Dio dio, {String? baseUrl}) = _AuthClient;
 
-  /// Create device uuid
+  /// Create device UUID
   @POST('/auth/createDeviceUuid')
   Future<PostAuthCreateDeviceUuidResponse> postAuthCreateDeviceUuid({
     @Body() required CreateDeviceUuidDto body,

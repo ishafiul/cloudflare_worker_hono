@@ -28,4 +28,6 @@ abstract class IAppStateService {
 
   /// Updates the user refresh token in the local storage.
   Future<void> updateDeviceUuid(String accessToken);
+
+  Future<bool> isDbInitialized();
 }

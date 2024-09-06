@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 import 'package:task_craft/module/auth/screens/login_screen.dart';
 import 'package:task_craft/module/auth/screens/verify_otp_screen.dart';
@@ -8,7 +9,7 @@ final authRouter = [
   GoRoute(
     path: '/auth',
     redirect: (context, state) async {
-      final isLoggedIn = await AppStateService().isLoggedIn();
+      final isLoggedIn = await getIt<AppStateService>().isLoggedIn();
       if (isLoggedIn == true) {
         return '/';
       }

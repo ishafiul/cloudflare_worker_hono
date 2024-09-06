@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:task_craft/app/app_router.dart';
+import 'package:task_craft/bootstrap.dart';
 import 'package:task_craft/core/config/colors.dart';
 import 'package:task_craft/core/config/custom_icons_icons.dart';
+import 'package:task_craft/core/config/get_it.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 import 'package:task_craft/core/utils/extention.dart';
 import 'package:task_craft/core/widgets/devider/divider.dart';
@@ -21,9 +23,10 @@ class MenuScreen extends HookWidget {
   Widget build(BuildContext context) {
     final isLoggedIn = useState(false);
     animate() async {
-      await AppStateService()
-          .isLoggedIn()
-          .then((value) => isLoggedIn.value = value);
+      await getIt<AppStateService>().isLoggedIn().then((value) {
+        isLoggedIn.value = value;
+        logger.i(value);
+      });
     }
 
     useEffect(() {
@@ -100,7 +103,12 @@ class MenuScreen extends HookWidget {
           ),
           4.verticalSpace,
           if (isLoggedIn.value)
-            BlocBuilder<LogoutCubit, LogoutState>(
+            BlocConsumer<LogoutCubit, LogoutState>(
+              listener: (context, state) {
+                if(state is LogoutSuccess){
+                  router.go('/auth/login');
+                }
+              },
               builder: (context, state) {
                 return Opacity(
                   opacity: state is LogoutLoading ? 0.4 : 1,

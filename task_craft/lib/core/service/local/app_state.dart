@@ -106,6 +106,7 @@ class AppStateService implements IAppStateService {
     final appStates = await db.appStates.where().findAll();
     final appState = appStates.firstOrNull;
     logger.i('appState: $appStates');
+    logger.i(appState?.user?.accessToken);
     if (appState?.user == null) {
       return false;
     }
@@ -130,5 +131,16 @@ class AppStateService implements IAppStateService {
       appState?.user!.id = userId;
       await db.appStates.put(appState!);
     });
+  }
+
+  @override
+  Future<bool> isDbInitialized() async {
+    final isar = DB();
+    final db = await isar.local;
+    final appStates = await db.appStates.where().findAll();
+    if(appStates.isEmpty) {
+      return false;
+    }
+    return true;
   }
 }
