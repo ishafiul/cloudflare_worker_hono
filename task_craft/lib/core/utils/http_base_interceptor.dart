@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:task_craft/api/auth/auth_client.dart';
+import 'package:task_craft/api/models/refresh_token_dto.dart';
 import 'package:task_craft/app/app_router.dart';
+import 'package:task_craft/core/config/env/env.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
 
 /// Base [Interceptor] for [Dio]. This interceptor is responsible for
@@ -29,11 +32,22 @@ class BaseInterceptor extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      router.go('/auth');
-      return;
       final dio = Dio();
       try {
-        const String newToken = '';
+        dio.options.baseUrl = EnvProd.host;
+        final client = AuthClient(dio);
+        final appState = AppStateService();
+
+        final deviceUuid = await appState.getUserRefreshToken();
+        if (deviceUuid == null) {
+          router.go('/auth');
+          return;
+        }
+        final res = await client.postAuthRefreshToken(
+          body: RefreshTokenDto(deviceUuid: deviceUuid),
+        );
+        final String newToken = res.accessToken;
+        await appState.updateAccessToken(newToken);
         err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
         return handler.resolve(await dio.fetch(err.requestOptions));
       } on DioException catch (e) {
