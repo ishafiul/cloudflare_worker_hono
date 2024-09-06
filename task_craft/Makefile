@@ -31,5 +31,17 @@ newProjectSetup:
 	flutter pub upgrade --major-versions
 
 parseApi:
-	powershell -Command "Remove-Item -Recurse -Force .\lib\api"
-	fvm dart run swagger_parser swaggert_parser.yaml
+	@echo "Deleting API directory..."
+	@rm -rf ./lib/api
+	@echo "Running Swagger parser..."
+	@fvm dart run swagger_parser swagger_parser.yaml & \
+	pid=$$!; \
+	echo -n "Processing"; \
+	while kill -0 $$pid 2>/dev/null; do \
+	    echo -n "."; \
+	    sleep 1; \
+	done; \
+	wait $$pid
+	@echo "\nSwagger parser completed."
+	@echo "Running build_runner for API files..."
+	@fvm dart run build_runner build --delete-conflicting-outputs --build-filter="lib/api/**"
