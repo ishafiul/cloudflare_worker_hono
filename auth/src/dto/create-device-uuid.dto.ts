@@ -1,5 +1,4 @@
-import {z} from "zod";
-import {v4 as uuidv4} from 'uuid';
+import { z } from '@hono/zod-openapi'
 
 export const CreateDeviceUuidSchema = z.object({
 	deviceType: z.string().optional(),
@@ -10,6 +9,6 @@ export const CreateDeviceUuidSchema = z.object({
 	appVersion: z.string().optional(),
 	ipAddress: z.string().optional(),
 	fcmToken: z.string(),
-})
+}).openapi('CreateDeviceUuidDto')
 
 export type CreateDeviceUuidDto = z.infer<typeof CreateDeviceUuidSchema>;

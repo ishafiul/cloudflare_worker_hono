@@ -4,12 +4,12 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'object_dto.freezed.dart';
-part 'object_dto.g.dart';
+part 'create_device_uuid_dto.freezed.dart';
+part 'create_device_uuid_dto.g.dart';
 
 @Freezed()
-class ObjectDto with _$ObjectDto {
-  const factory ObjectDto({
+class CreateDeviceUuidDto with _$CreateDeviceUuidDto {
+  const factory CreateDeviceUuidDto({
     required String deviceType,
     required String osName,
     required String osVersion,
@@ -18,7 +18,7 @@ class ObjectDto with _$ObjectDto {
     required String appVersion,
     required String ipAddress,
     required String fcmToken,
-  }) = _ObjectDto;
+  }) = _CreateDeviceUuidDto;
   
-  factory ObjectDto.fromJson(Map<String, Object?> json) => _$ObjectDtoFromJson(json);
+  factory CreateDeviceUuidDto.fromJson(Map<String, Object?> json) => _$CreateDeviceUuidDtoFromJson(json);
 }

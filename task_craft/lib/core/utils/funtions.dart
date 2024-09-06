@@ -21,12 +21,12 @@ String convertDate(String isoDate) {
   }
 }
 
-Future<ObjectDto> rawDeviceInfo() async {
+Future<CreateDeviceUuidDto> rawDeviceInfo() async {
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   final token = await FirebaseMessaging.instance.getToken();
   if (Platform.isAndroid) {
     final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    return ObjectDto(
+    return CreateDeviceUuidDto(
       deviceType: 'android',
       osName: androidInfo.version.sdkInt.toString(),
       osVersion: androidInfo.version.sdkInt.toString(),
@@ -39,7 +39,7 @@ Future<ObjectDto> rawDeviceInfo() async {
   }
   if (Platform.isIOS) {
     final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    return ObjectDto(
+    return CreateDeviceUuidDto(
       deviceType: 'ios',
       osName: iosInfo.systemName,
       osVersion: iosInfo.systemVersion,
@@ -50,7 +50,7 @@ Future<ObjectDto> rawDeviceInfo() async {
       deviceModel: iosInfo.model,
     );
   }
-  return ObjectDto(
+  return CreateDeviceUuidDto(
     deviceType: 'android',
     osName: 'android',
     osVersion: 'android',

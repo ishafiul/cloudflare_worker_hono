@@ -32,7 +32,7 @@ class RequestOtpCubit extends Cubit<RequestOtpState> {
       }
 
       await restClient.auth.postAuthReqOtp(
-        body: ObjectDto2(email: email, deviceUuid: deviceUuid.deviceUuid),
+        body: RequestOtpDto(email: email, deviceUuid: deviceUuid.deviceUuid),
       );
 
       emit(

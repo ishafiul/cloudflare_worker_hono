@@ -1,6 +1,6 @@
 {
     "info": {
-        "title": "Auth API",
+        "title": "Todo API",
         "version": "v1"
     },
     "openapi": "3.1.0",
@@ -14,7 +14,175 @@
                 "description": "Bearer token"
             }
         },
-        "schemas": {},
+        "schemas": {
+            "CreateDeviceUuidDto": {
+                "type": "object",
+                "properties": {
+                    "deviceType": {
+                        "type": "string"
+                    },
+                    "osName": {
+                        "type": "string"
+                    },
+                    "osVersion": {
+                        "type": "string"
+                    },
+                    "deviceModel": {
+                        "type": "string"
+                    },
+                    "isPhysicalDevice": {
+                        "type": "boolean"
+                    },
+                    "appVersion": {
+                        "type": "string"
+                    },
+                    "ipAddress": {
+                        "type": "string"
+                    },
+                    "fcmToken": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "fcmToken"
+                ]
+            },
+            "RequestOtpDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "deviceUuid": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "deviceUuid"
+                ]
+            },
+            "VerifyOtpDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "deviceUuid": {
+                        "type": "string"
+                    },
+                    "otp": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "email",
+                    "deviceUuid",
+                    "otp"
+                ]
+            },
+            "RefreshTokenDto": {
+                "type": "object",
+                "properties": {
+                    "deviceUuid": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "deviceUuid"
+                ]
+            },
+            "Todo": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "completedAt": {
+                        "type": "string"
+                    },
+                    "taskDate": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "completed",
+                            "in-progress"
+                        ]
+                    },
+                    "setAlarmBeforeMin": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "userId",
+                    "title",
+                    "startTime",
+                    "endTime",
+                    "taskDate"
+                ]
+            },
+            "CreateTodoDto": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "completedAt": {
+                        "type": "string"
+                    },
+                    "taskDate": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "completed",
+                            "in-progress"
+                        ]
+                    },
+                    "setAlarmBeforeMin": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "title",
+                    "startTime",
+                    "endTime",
+                    "taskDate"
+                ]
+            }
+        },
         "parameters": {}
     },
     "paths": {
@@ -30,36 +198,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "deviceType": {
-                                        "type": "string"
-                                    },
-                                    "osName": {
-                                        "type": "string"
-                                    },
-                                    "osVersion": {
-                                        "type": "string"
-                                    },
-                                    "deviceModel": {
-                                        "type": "string"
-                                    },
-                                    "isPhysicalDevice": {
-                                        "type": "boolean"
-                                    },
-                                    "appVersion": {
-                                        "type": "string"
-                                    },
-                                    "ipAddress": {
-                                        "type": "string"
-                                    },
-                                    "fcmToken": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "fcmToken"
-                                ]
+                                "$ref": "#/components/schemas/CreateDeviceUuidDto"
                             }
                         }
                     }
@@ -113,20 +252,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "deviceUuid": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "deviceUuid"
-                                ]
+                                "$ref": "#/components/schemas/RequestOtpDto"
+                            },
+                            "example": {
+                                "email": "shafiulislam20@gmail.com",
+                                "deviceUuid": "e3716131-6aaa-4c5d-b468-71eb9a410b5c"
                             }
                         }
                     }
@@ -180,24 +310,12 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "deviceUuid": {
-                                        "type": "string"
-                                    },
-                                    "otp": {
-                                        "type": "number"
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "deviceUuid",
-                                    "otp"
-                                ]
+                                "$ref": "#/components/schemas/VerifyOtpDto"
+                            },
+                            "example": {
+                                "email": "shafiulislam20@gmail.com",
+                                "deviceUuid": "e3716131-6aaa-4c5d-b468-71eb9a410b5c",
+                                "otp": 12345
                             }
                         }
                     }
@@ -256,11 +374,95 @@
                 }
             }
         },
-        "/auth/test": {
-            "get": {
+        "/auth/refreshToken": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefreshTokenDto"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "accessToken"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Respond a message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/todo/createTodo": {
+            "post": {
+                "tags": [
+                    "Todo"
+                ],
+                "security": [
+                    {
+                        "AUTH": []
+                    }
+                ],
+                "description": "Create a new todo item",
+                "requestBody": {
+                    "description": "The data required to create a todo item",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTodoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respond with the created todo item",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Todo"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Respond with an error message",
                         "content": {
                             "application/json": {
                                 "schema": {

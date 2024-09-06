@@ -5,9 +5,9 @@
 import 'package:dio/dio.dart';
 
 import 'auth/auth_client.dart';
-import 'client/client_client.dart';
+import 'todo/todo_client.dart';
 
-/// Auth API `vv1`
+/// Todo API `vv1`
 class RestClient {
   RestClient(
     Dio dio, {
@@ -19,9 +19,9 @@ class RestClient {
   final String? _baseUrl;
 
   AuthClient? _auth;
-  ClientClient? _client;
+  TodoClient? _todo;
 
   AuthClient get auth => _auth ??= AuthClient(_dio, baseUrl: _baseUrl);
 
-  ClientClient get client => _client ??= ClientClient(_dio, baseUrl: _baseUrl);
+  TodoClient get todo => _todo ??= TodoClient(_dio, baseUrl: _baseUrl);
 }

@@ -193,7 +193,7 @@ const refreshToken = createRoute({
                 'application/json': {
                     schema: z.object({
                         deviceUuid: z.string(),
-                    })
+                    }).openapi('RefreshTokenDto'),
                 }
             }
         }

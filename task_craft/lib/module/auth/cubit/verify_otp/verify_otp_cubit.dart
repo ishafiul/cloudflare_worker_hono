@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
-import 'package:task_craft/api/models/object_dto3.dart';
+import 'package:task_craft/api/models/verify_otp_dto.dart';
 import 'package:task_craft/api/rest_client.dart';
 import 'package:task_craft/core/config/env/env.dart';
 import 'package:task_craft/core/service/local/app_state.dart';
@@ -24,7 +24,7 @@ class VerifyOtpCubit extends Cubit<VerifyOtpState> {
       final restClient = RestClient(dio, baseUrl: EnvProd.host);
 
       final result = await restClient.auth.postAuthVerifyOtp(
-        body: ObjectDto3(
+        body: VerifyOtpDto(
           otp: otp,
           email: email,
           deviceUuid: deviceUuid,
