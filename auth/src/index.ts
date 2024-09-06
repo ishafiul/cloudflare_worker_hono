@@ -1,4 +1,4 @@
-import {WorkerEntrypoint, RpcTarget} from "cloudflare:workers";
+import {RpcTarget, WorkerEntrypoint} from "cloudflare:workers";
 import {drizzle, LibSQLDatabase} from "drizzle-orm/libsql";
 import {createClient} from "@libsql/client";
 import {DeviceUuidEntity} from "./entities/device-uuid.entity";
@@ -178,7 +178,7 @@ export class Auth extends RpcTarget {
 	}
 
 	async updateLastRefresh(authId: string) {
-		return this.db.update(auths).set({
+		return await this.db.update(auths).set({
 			lastRefresh: new Date()
 		}).where(eq(auths.id, authId)).get();
 	}

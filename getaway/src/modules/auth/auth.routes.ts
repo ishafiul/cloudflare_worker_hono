@@ -4,52 +4,43 @@ import {CreateDeviceUuidDto, CreateDeviceUuidSchema} from "../../../../auth/src/
 import {zValidator} from "@hono/zod-validator";
 import {RequestOtpDto, RequestOtpSchema} from "../../../../auth/src/dto/request-otp.dto";
 import {VerifyOtpDto, VerifyOtpSchema} from "../../../../auth/src/dto/verify-otp.dto";
-import {HTTPException} from "hono/http-exception";
 import {jwt, sign} from "hono/jwt";
 
 const authRoutes = new OpenAPIHono<{ Bindings: Bindings }>()
 
+// Route: Create Device UUID
 const createDeviceUuid = createRoute({
     method: 'post',
     path: '/createDeviceUuid',
     tags: ['Auth'],
-    description: 'Create device uuid',
+    description: 'Create device UUID',
     middleware: [zValidator('json', CreateDeviceUuidSchema)],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'Respond with device UUID',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        deviceUuid: z.string()
-                    })
-                }
-            }
+                'application/json': {schema: z.object({deviceUuid: z.string()})},
+            },
         },
         422: {
-            description: 'Respond a message',
+            description: 'Validation error',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
     request: {
         body: {
-            description: 'Create device uuid',
+            description: 'Device UUID creation request',
             required: true,
             content: {
-                'application/json': {
-                    schema: CreateDeviceUuidSchema,
-                }
-            }
-        }
-    }
-})
+                'application/json': {schema: CreateDeviceUuidSchema},
+            },
+        },
+    },
+});
 
+// Route: Request OTP
 const reqOtp = createRoute({
     method: 'post',
     path: '/reqOtp',
@@ -57,25 +48,17 @@ const reqOtp = createRoute({
     middleware: [zValidator('json', RequestOtpSchema)],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'OTP sent successfully',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
         },
         422: {
-            description: 'Respond a message',
+            description: 'Validation error',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
     request: {
         body: {
@@ -84,31 +67,33 @@ const reqOtp = createRoute({
                     schema: RequestOtpSchema,
                     example: {
                         email: 'shafiulislam20@gmail.com',
-                        deviceUuid: "e3716131-6aaa-4c5d-b468-71eb9a410b5c"
-                    }
-                }
-            }
-        }
-    }
-})
+                        deviceUuid: 'e3716131-6aaa-4c5d-b468-71eb9a410b5c',
+                    },
+                },
+            },
+        },
+    },
+});
 
-
+// Route: Verify OTP
 const verifyOtp = createRoute({
     method: 'post',
     path: '/verifyOtp',
     tags: ['Auth'],
-    middleware: [zValidator('json', RequestOtpSchema)],
+    middleware: [zValidator('json', VerifyOtpSchema)],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'Access Token',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        accessToken: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({accessToken: z.string()})},
+            },
+        },
+        422: {
+            description: 'Validation error',
+            content: {
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
     request: {
         body: {
@@ -117,31 +102,27 @@ const verifyOtp = createRoute({
                     schema: VerifyOtpSchema,
                     example: {
                         email: 'shafiulislam20@gmail.com',
-                        deviceUuid: "e3716131-6aaa-4c5d-b468-71eb9a410b5c",
-                        otp: 12345
-                    }
+                        deviceUuid: 'e3716131-6aaa-4c5d-b468-71eb9a410b5c',
+                        otp: 12345,
+                    },
                 },
-            }
-        }
+            },
+        },
     },
+});
 
-})
-
+// Route: Login with Google
 const loginWithGoogle = createRoute({
     method: 'post',
     path: '/loginWithGoogle',
     tags: ['Auth'],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'Login successful',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
     request: {
         body: {
@@ -149,265 +130,160 @@ const loginWithGoogle = createRoute({
                 'application/json': {
                     schema: z.object({
                         username: z.string(),
-                        password: z.string()
-                    })
-                }
-            }
-        }
-    }
-})
+                        password: z.string(),
+                    }),
+                },
+            },
+        },
+    },
+});
 
-
+// Route: Refresh Token
 const refreshToken = createRoute({
     method: 'post',
     path: '/refreshToken',
     tags: ['Auth'],
-    middleware: [zValidator('json', z.object({
-        deviceUuid: z.string(),
-    }))],
+    middleware: [zValidator('json', z.object({deviceUuid: z.string()}))],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'New access token',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        accessToken: z.string()
-                    })
-                }
-            }
+                'application/json': {schema: z.object({accessToken: z.string()})},
+            },
         },
         401: {
-            description: 'Respond a message',
+            description: 'Unauthorized',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
     request: {
         body: {
             content: {
                 'application/json': {
-                    schema: z.object({
-                        deviceUuid: z.string(),
-                    }).openapi('RefreshTokenDto'),
-                }
-            }
-        }
-    }
-})
+                    schema: z.object({deviceUuid: z.string()}).openapi('RefreshTokenDto'),
+                },
+            },
+        },
+    },
+});
 
-
+// Route: Logout
 const logout = createRoute({
     method: 'delete',
     path: '/logout',
-    security: [{
-        "AUTH": []
-    }],
+    security: [{AUTH: []}],
     tags: ['Auth'],
     responses: {
         200: {
-            description: 'Respond a message',
+            description: 'Logout successful',
             content: {
-                'application/json': {
-                    schema: z.object({
-                        message: z.string()
-                    })
-                }
-            }
-        }
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+            content: {
+                'application/json': {schema: z.object({message: z.string()})},
+            },
+        },
     },
-})
+});
 
+// Implementing API Handlers
+authRoutes.openapi(createDeviceUuid, async (c) => {
+    const auth = await c.env.AUTH_SERVICE.newAuth();
+    const bodyJson = await c.req.json<CreateDeviceUuidDto>();
+    const body = CreateDeviceUuidSchema.parse(bodyJson);
 
-authRoutes.openapi(
-    createDeviceUuid, async (c) => {
-        const auth = await c.env.AUTH_SERVICE.newAuth();
-        const body = await c.req.json<CreateDeviceUuidDto>()
-
+    try {
         const deviceUuidEntity = await auth.createDeviceUuid(body);
-        if (deviceUuidEntity === undefined) {
-            return c.json({message: "create device uuid failed"}, 422)
+        if (!deviceUuidEntity) return c.json({message: 'Device UUID not created'}, 422);
+        return c.json(deviceUuidEntity, 200);
+    } catch (error) {
+        return c.json({message: 'Something went wrong'}, 422);
+    }
+});
+
+authRoutes.openapi(reqOtp, async (c) => {
+    const auth = await c.env.AUTH_SERVICE.newAuth();
+    const mailService = await c.env.EMAIL_SERVICE.newEmail();
+    const userService = await c.env.USER_SERVICE.newUser();
+    const bodyJson = await c.req.json<RequestOtpDto>();
+    const body = RequestOtpSchema.parse(bodyJson);
+
+    try {
+        const user = await userService.findUserOrCreate(body.email);
+        if (!user) return c.json({message: 'User not found'}, 422);
+
+        const otpEntity = await auth.reqOtp(body, user);
+        if (body.email !== 'shafiulislam20@gmail.com') {
+            await mailService.sentOtp(body.email, otpEntity.otp);
         }
-        return c.json(deviceUuidEntity, 200)
-    },
-)
+        return c.json({message: 'OTP sent successfully'}, 200);
+    } catch (error) {
+        return c.json({message: 'Something went wrong'}, 422);
+    }
+});
 
-authRoutes.openapi(
-    reqOtp, async (c) => {
-        let auth = await c.env.AUTH_SERVICE.newAuth();
-        let mailService = await c.env.EMAIL_SERVICE.newEmail();
-        const body = await c.req.json<RequestOtpDto>()
-        let userService = await c.env.USER_SERVICE.newUser();
+authRoutes.openapi(verifyOtp, async (c) => {
+    const authService = await c.env.AUTH_SERVICE.newAuth();
+    const userService = await c.env.USER_SERVICE.newUser();
+    const bodyJson = await c.req.json<VerifyOtpDto>();
+    const body = VerifyOtpSchema.parse(bodyJson);
 
-        const user = await userService.findUserOrCreate(body.email)
-        if (user === undefined) {
-            return c.json({
-                message: "user not found"
-            }, 422)
-        }
-        try {
-            const requestOtpEntity = await auth.reqOtp(body, user);
-            if (user.email !== "shafiulislam20@gmail.com") {
-                await mailService.sentOtp(body.email, requestOtpEntity.otp);
-            }
-            return c.json({
-                message: "send otp success"
-            }, 200)
-        } catch (e: any) {
-            return c.json({
-                message: e.message
-            }, 422)
-        }
-
-    },
-)
-
-authRoutes.openapi(
-    verifyOtp, async (c) => {
-        console.log(`in`);
-        let authService = await c.env.AUTH_SERVICE.newAuth();
-        let userService = await c.env.USER_SERVICE.newUser();
-        const body = await c.req.json<VerifyOtpDto>()
-
-
-        const user = await userService.findUserOrCreate(body.email)
-        console.log(user);
-        let auth: { id: string }
-        try {
-            auth = await authService.verifyOtp(body, user);
-            console.log(auth);
-        } catch (e: any) {
-            console.log(e);
-            throw new HTTPException(422, {
-                message: e.message
-            })
-        }
+    try {
+        const user = await userService.findUserOrCreate(body.email);
+        const auth = await authService.verifyOtp(body, user);
         const jwtPayload = {
             authID: auth.id,
             exp: Math.floor(Date.now() / 1000) + 60 * 5,
         };
-        return c.json({
-            accessToken: await sign(jwtPayload, c.env.JWT_SECRET,),
-        }, 200);
-    },
-)
-authRoutes.use('/logout', (c, next) => {
-    const jwtMiddleware = jwt({
-        secret: c.env.JWT_SECRET,
-    })
-    // @ts-ignore
-    return jwtMiddleware(c, next)
-})
-authRoutes.openapi(
-    logout, async (c) => {
-        const auth = await c.env.AUTH_SERVICE.newAuth();
-        // @ts-ignore
-        const jwtPayload: { authID: string } = c.get('jwtPayload');
-        const result = await auth.logout(jwtPayload.authID);
-        if (!result) {
-            return c.json({message: "logout failed"}, 200)
-        }
-        return c.json({message: "logout success"}, 200)
+        return c.json({accessToken: await sign(jwtPayload, c.env.JWT_SECRET)}, 200);
+    } catch (error) {
+        return c.json({message: "Invalid OTP"}, 422);
     }
-)
-
-/*
-interface Env {
-    GOOGLE_CLIENT_ID: string;
-    GOOGLE_CLIENT_SECRET: string;
-    GOOGLE_REDIRECT_URI: string;
-}
-
-// Route to start the OAuth flow
-authRoutes.get('/google', async (c) => {
-    const env: Env = c.env;
-    const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
-    const responseType = 'code';
-    const scope = encodeURIComponent('https://www.googleapis.com/auth/userinfo.email');
-    const accessType = 'offline'; // For getting a refresh token
-
-    // Construct the authorization URL manually
-    const authUrl = `${GOOGLE_AUTH_ENDPOINT}?response_type=${responseType}&client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(env.GOOGLE_REDIRECT_URI)}&scope=${scope}&access_type=${accessType}`;
-    return c.redirect(authUrl);
 });
 
-// OAuth callback route
-authRoutes.get('/oauth2callback', async (c) => {
-    const env: Env = c.env;
-    const url = new URL(c.req.url);
-    const code = url.searchParams.get('code');
+authRoutes.use('/logout', (c, next) => {
+    const jwtMiddleware = jwt({secret: c.env.JWT_SECRET});
+    // @ts-ignore
+    return jwtMiddleware(c, next);
+});
 
-    if (!code) {
-        return c.text('Authorization code not found', 400);
+authRoutes.openapi(logout, async (c) => {
+    const auth = await c.env.AUTH_SERVICE.newAuth();
+    // @ts-ignore
+    const {authID} = c.get('jwtPayload');
+    const result = await auth.logout(authID);
+
+    return result
+        ? c.json({message: "Logout successful"}, 200)
+        : c.json({message: "Something went wrong"}, 401);
+});
+
+authRoutes.openapi(refreshToken, async (c) => {
+    const auth = await c.env.AUTH_SERVICE.newAuth();
+    const bodyJson = await c.req.json<{ deviceUuid: string }>();
+    const {deviceUuid} = z.object({deviceUuid: z.string()}).parse(bodyJson);
+
+    const authResult = await auth.findAuthByDeviceId(deviceUuid);
+    if (!authResult) return c.json({message: "Unauthorized"}, 401);
+
+    if (!(await auth.isCanRefresh(authResult.id))) {
+        return c.json({message: "Unauthorized"}, 401);
     }
 
-    const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
+    await auth.updateLastRefresh(authResult.id);
+    const jwtPayload = {
+        authID: authResult.id,
+        exp: Math.floor(Date.now() / 1000) + 60 * 5,
+    };
 
-    const tokenResponse = await fetch(GOOGLE_TOKEN_ENDPOINT, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            code: code,
-            client_id: env.GOOGLE_CLIENT_ID,
-            client_secret: env.GOOGLE_CLIENT_SECRET,
-            redirect_uri: env.GOOGLE_REDIRECT_URI,
-            grant_type: 'authorization_code',
-        }),
-    });
+    return c.json({
+        accessToken: await sign(jwtPayload, c.env.JWT_SECRET),
+    }, 200);
+});
 
-    const tokenData = await tokenResponse.json();
-
-    return c.text('User account created successfully.');
-
-});*/
-authRoutes.openapi(
-    refreshToken, async (c) => {
-        const auth = await c.env.AUTH_SERVICE.newAuth();
-
-        const body = await c.req.json<{ deviceUuid: string }>()
-
-        const {deviceUuid} = z.object({
-            deviceUuid: z.string(),
-        }).parse(body);
-        const authResult = await auth.findAuthByDeviceId(deviceUuid);
-        if (authResult === undefined) {
-            return c.json({
-                message: "Unauthorized"
-            }, 401,)
-        }
-        const result = await auth.isCanRefresh(authResult.id);
-        if (!result) {
-            return c.json({
-                message: "Unauthorized"
-            }, 401,)
-        }
-
-        const jwtPayload = {
-            authID: authResult.id,
-            exp: Math.floor(Date.now() / 1000) + 60 * 5,
-        };
-
-        return c.json({
-            accessToken: await sign(jwtPayload, c.env.JWT_SECRET,),
-        }, 200);
-    },
-)
-/*
-authRoutes.openapi(
-    refreshToken, loginHandler,
-)
-
-authRoutes.openapi(
-    refreshToken, loginHandler,
-)
-
-authRoutes.openapi(
-    logout, loginHandler,
-)*/
-export default authRoutes
+export default authRoutes;
