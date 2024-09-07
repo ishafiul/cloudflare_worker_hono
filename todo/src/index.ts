@@ -3,10 +3,10 @@ import {drizzle, LibSQLDatabase} from "drizzle-orm/libsql";
 import {createClient} from "@libsql/client";
 import {Bindings} from "./config/bindings";
 import {todos} from "../drizzle/schema";
-import {v4 as uuidv4} from 'uuid';
 import {CreateTodoDto, CreateTodoSchema} from "./dto/create-todo.dto";
-import {eq} from "drizzle-orm";
-
+import {and, asc, eq, sql} from "drizzle-orm";
+import {FindTodosOptions, FindTodosOptionsSchema} from "./dto/get-todos.dto";
+import {v4 as uuidv4} from 'uuid';
 export class Todo extends RpcTarget {
 	#env: Bindings;
 	private readonly db: LibSQLDatabase;
@@ -116,6 +116,36 @@ export class Todo extends RpcTarget {
 		}
 	}
 
+	async getTodos(options: FindTodosOptions) {
+		const validatedOptions = FindTodosOptionsSchema.parse(options);
+		console.log("todo1")
+		// Extract and use validated options
+		const {page, perPage, taskDate, userId} = validatedOptions;
+		try {
+			console.log("todo2")
+			console.log(page)
+			console.log(perPage)
+			const currentPage = Math.max(1, page);
+			const currentPerPage = Math.max(1, perPage);
+
+			const offset = (currentPage - 1) * currentPerPage;
+
+			console.log("todo3")
+			return await this.db
+				.select()
+				.from(todos)
+				.where(and(
+					eq(todos.userId, userId),
+					sql`DATE(${todos.taskDate}) = ${taskDate}`
+				))
+				.orderBy(asc(todos.startTime))
+				.limit(currentPerPage)
+				.offset(offset);
+
+		} catch (error) {
+			throw new Error(`Failed to fetch todos for user with ID: ${userId}`);
+		}
+	}
 
 }
 

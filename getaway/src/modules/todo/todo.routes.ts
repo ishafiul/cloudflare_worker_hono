@@ -4,6 +4,8 @@ import {zValidator} from "@hono/zod-validator";
 import {ApiCreateTodoDto, ApiCreateTodoDtoSchema} from "./dto/create-todo.dto";
 import {ApiTodoEntitySchema} from "./entity/create-todo.entity";
 import {ApiUpdateTodoDto, ApiUpdateTodoDtoSchema} from "./dto/update-todo.dto";
+import {FindTodosOptionsSchema} from "../../../../todo/src/dto/get-todos.dto";
+import {ApiFindTodosOptionsSchema} from "./dto/get-todos.dto";
 
 
 const todoRoutes = new OpenAPIHono<{ Bindings: Bindings }>()
@@ -69,9 +71,12 @@ todoRoutes.openapi(
             // @ts-ignore
             const jwtPayload: { authID: string } = c.get('jwtPayload');
             type CreateTodoDtoWithUserId = ApiCreateTodoDto & { userId: string };
+            const authService = await c.env.AUTH_SERVICE.newAuth();
+            const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            if(!userId) return c.json({message: "User not found"}, 403);
             const reBody: CreateTodoDtoWithUserId = {
                 ...body,
-                userId: jwtPayload.authID,
+                userId: userId,
             };
 
             const todoEntity = await todoService.create(reBody)
@@ -173,10 +178,13 @@ todoRoutes.openapi(
             if (todoExists[0].userId !== jwtPayload.authID) {
                 return c.json({message: "You don't have permission to update this todo item"}, 403);
             }
+            const authService = await c.env.AUTH_SERVICE.newAuth();
+            const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            if(!userId) return c.json({message: "User not found"}, 403);
             type UpdateTodoDtoWithUserId = ApiUpdateTodoDto & { userId: string };
             const reBody: UpdateTodoDtoWithUserId = {
                 ...body,
-                userId: jwtPayload.authID,
+                userId: userId,
             };
 
             const updatedTodoEntity = await todoService.update(todoId, reBody); // Perform the update
@@ -255,7 +263,10 @@ todoRoutes.openapi(
             if (!todoEntity) {
                 return c.json({message: "Todo item not found"}, 404); // Return 404 if not found
             }
-            if (todoEntity[0].userId !== jwtPayload.authID) {
+            const authService = await c.env.AUTH_SERVICE.newAuth();
+            const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            if(!userId) return c.json({message: "User not found"}, 403);
+            if (todoEntity[0].userId !== userId) {
                 return c.json({message: "You don't have permission to update this todo item"}, 403);
             }
             const validatedTodoEntity = ApiTodoEntitySchema.parse(todoEntity[0]);
@@ -357,6 +368,98 @@ todoRoutes.openapi(
             return c.json({message: "Failed to delete todo"}, 422);
         }
     },
+);
+
+todoRoutes.openapi(
+    createRoute({
+        method: 'get',
+        path: '/',
+        tags: ['Todo'],
+        security: [{
+            "AUTH": []
+        }],
+        description: 'Get a list of todos with pagination and date filtering',
+        responses: {
+            200: {
+                description: 'Respond with the list of todos',
+                content: {
+                    'application/json': {
+                        schema: z.array(ApiTodoEntitySchema)
+                    }
+                }
+            },
+            404: {
+                description: 'No todos found',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            },
+            403: {
+                description: 'Forbidden',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            },
+            422: {
+                description: 'Validation error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        },
+        request: {
+            query: ApiFindTodosOptionsSchema
+        }
+    }),
+    async (c) => {
+        // Extract query parameters
+        const {page, perPage, taskDate} = c.req.query() as {
+            page?: string;
+            perPage?: string;
+            taskDate?: string;
+        };
+        try {
+            const todoService = await c.env.TODO_SERVICE.newTodo();
+            const authService = await c.env.AUTH_SERVICE.newAuth();
+            // @ts-ignore
+            const jwtPayload: { authID: string } = c.get('jwtPayload'); // Get the auth ID
+            const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            console.log("ok2")
+            console.log(page)
+            console.log(perPage)
+            // Validate and normalize query parameters
+            const options = {
+                page: parseInt(page ?? "1"),
+                perPage: parseInt(perPage ?? "20"),
+                taskDate: taskDate ?? new Date().toISOString().split('T')[0],
+                userId: userId // Required for filtering
+            };
+            console.log("ok3")
+            // Fetch todos using the findTodos function
+            const todos = await todoService.getTodos(FindTodosOptionsSchema.parse(options));
+            console.log("ok4")
+            if (todos.length === 0) {
+                return c.json({message: "No todos found"}, 404);
+            }
+           /* const apiTodos = z.array(ApiTodoEntitySchema).parse(todos)*/
+            console.log("ok5")
+            return c.json(todos, 200)
+        } catch (error) {
+            return c.json({message: "Failed to retrieve todos"}, 422);
+        }
+    }
 );
 
 

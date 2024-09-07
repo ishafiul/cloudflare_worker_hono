@@ -186,7 +186,15 @@ export class Auth extends RpcTarget {
 	async findAuthByDeviceId(deviceId: string) {
 		return this.db.select().from(auths).where(eq(auths.deviceId, deviceId)).get();
 	}
-
+	async findUserIdByAuthId(authId: string) {
+		const auth = await this.db.select().from(auths).where(eq(auths.id, authId)).get();
+		if (auth === undefined) {
+			new Error('auth not found');
+			return;
+		}else {
+			return auth.userId;
+		}
+	}
 	private async getDevice(deviceId: string) {
 		return this.db.select().from(devices).where(eq(devices.id, deviceId)).get();
 	}

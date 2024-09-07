@@ -238,7 +238,7 @@ authRoutes.openapi(verifyOtp, async (c) => {
         const auth = await authService.verifyOtp(body, user);
         const jwtPayload = {
             authID: auth.id,
-            exp: Math.floor(Date.now() / 1000) + 60 * 5,
+            /*exp: Math.floor(Date.now() / 1000) + 60 * 5,*/
         };
         return c.json({accessToken: await sign(jwtPayload, c.env.JWT_SECRET)}, 200);
     } catch (error) {
