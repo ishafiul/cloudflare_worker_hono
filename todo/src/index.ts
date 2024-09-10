@@ -75,10 +75,10 @@ export class Todo extends RpcTarget {
 		}
 	}
 
-	async update(id: string, updateDeviceUuidDto: Partial<CreateTodoDto>) {
+	async update(id: string, todo: Partial<CreateTodoDto>) {
 		const UpdateTodoSchema = CreateTodoSchema.partial();
 
-		const validation = UpdateTodoSchema.safeParse(updateDeviceUuidDto);
+		const validation = UpdateTodoSchema.safeParse(todo);
 
 		if (!validation.success) {
 			throw new Error('Invalid input data');
@@ -171,31 +171,29 @@ export class Todo extends RpcTarget {
 		}
 	}
 
-	private generateMonthDates(year: number, month: number) {
+	private generateMonthDates(year: number, month: number): string[] {
 		const dates: string[] = [];
 		const numDays = new Date(year, month, 0).getDate(); // Number of days in the month
 
 		for (let day = 1; day <= numDays; day++) {
-			const date = new Date(year, month - 1, day);
-			dates.push(date.toISOString().split('T')[0]); // YYYY-MM-DD format
+			dates.push(new Date(year, month - 1, day).toISOString().split('T')[0]); // YYYY-MM-DD format
 		}
 
 		return dates;
 	}
 
-	async getTodoCountsForMonth({year, month, userId}: { year: string, month: string, userId: string }) {
-		const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString(); // First day of the month
-		const endDate = new Date(Number(year), Number(month), 0).toISOString();       // Last day of the month
-
+	async getTodoCountsForMonth({ year, month, userId }: { year: string; month: string; userId: string }) {
+		const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString();
+		const endDate = new Date(Number(year), Number(month), 0).toISOString();
 		const dates = this.generateMonthDates(Number(year), Number(month));
 
-		try {
-			if (!this.db) {
-				console.log('Database connection is not initialized');
-				return;
-			}
+		if (!this.db) {
+			console.log('Database connection is not initialized');
+			return [];
+		}
 
-			let res: {taskDate: string; count: number; }[] = await this.db
+		try {
+			const res = await this.db
 				.select({
 					taskDate: todos.taskDate,
 					count: sql<number>`COUNT(*)` // Use the SQL helper for COUNT
@@ -210,18 +208,12 @@ export class Todo extends RpcTarget {
 				)
 				.groupBy(todos.taskDate);
 
-			// Initialize a result object with zero counts for all dates
+			// Initialize a result map with zero counts for all dates
+			const resultsMap = new Map<string, { taskDate: string; count: number }>(
+				dates.map(date => [date, { taskDate: date, count: 0 }])
+			);
 
-			if (!res) {
-				return []
-			}
-			const results: { taskDate: string; count: number; }[] = dates.map(date => ({
-				taskDate: date,
-				count: 0
-			}));
-
-			const resultsMap = new Map(results.map(item => [item.taskDate, item]));
-
+			// Update the counts from the database results
 			res.forEach(row => {
 				const formattedDate = new Date(row.taskDate).toISOString().split('T')[0];
 				if (resultsMap.has(formattedDate)) {
@@ -234,8 +226,10 @@ export class Todo extends RpcTarget {
 
 		} catch (error) {
 			console.error('Error during query execution:', error);
+			return [];
 		}
 	}
+
 
 
 }
