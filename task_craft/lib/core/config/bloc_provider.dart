@@ -35,6 +35,9 @@ class Provider {
     BlocProvider<GetTodosCubit>(
       create: (BuildContext context) => GetTodosCubit(),
     ),
+    BlocProvider<UpdateTodoCubit>(
+      create: (BuildContext context) => UpdateTodoCubit(),
+    ),
 
     /*BlocProvider<GoogleAuthCubit>(
       create: (BuildContext context) => GoogleAuthCubit(AuthRepository()),
