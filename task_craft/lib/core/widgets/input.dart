@@ -14,6 +14,8 @@ class TextInputField extends StatefulWidget {
     this.suffixIcon,
     this.initialValue,
     this.labelText,
+    this.minLines,
+    this.maxLines,
     this.keyboardType,
     this.onChanged,
   });
@@ -22,6 +24,8 @@ class TextInputField extends StatefulWidget {
   final TextEditingController? controller;
   final String? placeholder;
   final String? initialValue;
+  final int? minLines;
+  final int? maxLines;
   final bool disabled;
   final bool isRequired;
   final bool readOnly;
@@ -92,6 +96,8 @@ class _TextInputFieldState extends State<TextInputField> {
               obscureText: widget.obscureText,
               keyboardType: widget.keyboardType,
               initialValue: widget.initialValue,
+              minLines: widget.minLines, // Set this
+              maxLines: widget.maxLines,
               onChanged: (value) {
                 setState(() {
                   isVisibleClear =
