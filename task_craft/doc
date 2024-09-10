@@ -935,10 +935,10 @@
                 }
             }
         },
-        "/todo/month-todo-count": {
+        "/todo/analysis/month-todo-count": {
             "get": {
                 "tags": [
-                    "Todo"
+                    "Todo Analysis"
                 ],
                 "security": [
                     {

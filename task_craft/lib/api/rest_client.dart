@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 
 import 'auth/auth_client.dart';
 import 'todo/todo_client.dart';
+import 'todo_analysis/todo_analysis_client.dart';
 
 /// Todo API `vv1`
 class RestClient {
@@ -20,8 +21,11 @@ class RestClient {
 
   AuthClient? _auth;
   TodoClient? _todo;
+  TodoAnalysisClient? _todoAnalysis;
 
   AuthClient get auth => _auth ??= AuthClient(_dio, baseUrl: _baseUrl);
 
   TodoClient get todo => _todo ??= TodoClient(_dio, baseUrl: _baseUrl);
+
+  TodoAnalysisClient get todoAnalysis => _todoAnalysis ??= TodoAnalysisClient(_dio, baseUrl: _baseUrl);
 }

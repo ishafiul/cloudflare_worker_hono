@@ -5,6 +5,7 @@
 // Clients
 export 'auth/auth_client.dart';
 export 'todo/todo_client.dart';
+export 'todo_analysis/todo_analysis_client.dart';
 // Data classes
 export 'models/create_device_uuid_dto.dart';
 export 'models/request_otp_dto.dart';
@@ -20,7 +21,7 @@ export 'models/delete_auth_logout_response.dart';
 export 'models/post_auth_refresh_token_response.dart';
 export 'models/delete_todo_todo_id_response.dart';
 export 'models/data.dart';
-export 'models/get_todo_month_todo_count_response.dart';
+export 'models/get_todo_analysis_month_todo_count_response.dart';
 export 'models/todo_status.dart';
 export 'models/create_todo_dto_status.dart';
 // Root client

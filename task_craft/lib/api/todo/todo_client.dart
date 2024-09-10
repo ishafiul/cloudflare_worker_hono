@@ -7,7 +7,6 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/create_todo_dto.dart';
 import '../models/delete_todo_todo_id_response.dart';
-import '../models/get_todo_month_todo_count_response.dart';
 import '../models/todo.dart';
 import '../models/todos.dart';
 
@@ -54,12 +53,5 @@ abstract class TodoClient {
   @DELETE('/todo/{todoId}')
   Future<DeleteTodoTodoIdResponse> deleteTodoTodoId({
     @Path('todoId') required String todoId,
-  });
-
-  /// Get a count of todos for each date in a given month and year
-  @GET('/todo/month-todo-count')
-  Future<GetTodoMonthTodoCountResponse> getTodoMonthTodoCount({
-    @Query('year') required String year,
-    @Query('month') required String month,
   });
 }
