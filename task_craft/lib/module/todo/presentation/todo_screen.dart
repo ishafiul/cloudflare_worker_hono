@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:task_craft/bootstrap.dart';
 import 'package:task_craft/core/config/colors.dart';
 import 'package:task_craft/core/config/custom_icons_icons.dart';
 import 'package:task_craft/core/utils/extention.dart';
+import 'package:task_craft/core/widgets/bottom_sheet/scrollable_bottom_sheet.dart';
 import 'package:task_craft/core/widgets/button/button.dart';
+import 'package:task_craft/core/widgets/button/enums.dart';
+import 'package:task_craft/core/widgets/input.dart';
 import 'package:task_craft/core/widgets/mesure_widget.dart';
+import 'package:task_craft/module/todo/cubit/todo_count/todo_count_cubit.dart';
 import 'package:task_craft/module/todo/presentation/widgets/date_timeline.dart';
 import 'package:task_craft/module/todo/presentation/widgets/task_content.dart';
 
@@ -32,6 +36,9 @@ class TodoScreen extends HookWidget {
         ValueNotifier<DateTime>(DateTime.now());
     final ValueNotifier<DateTime> selectedDate =
         ValueNotifier<DateTime>(DateTime.now());
+
+    final useTaskCountCubit = useTextEditingController(
+        text: DateFormat("yyyy-MM-dd").format(selectedDate.value));
     useEffect(() {
       return null;
     });
@@ -63,8 +70,11 @@ class TodoScreen extends HookWidget {
                     children: [
                       ValueListenableBuilder(
                         valueListenable: selectedMonth,
-                        builder: (BuildContext context, DateTime value,
-                            Widget? child) {
+                        builder: (
+                          BuildContext context,
+                          DateTime value,
+                          Widget? child,
+                        ) {
                           return Text(
                             DateFormat('MMM yyyy').format(value),
                             style: context.textTheme.titleLarge,
@@ -171,6 +181,9 @@ class TodoScreen extends HookWidget {
                       if (selectedMonth.value.month != date.month ||
                           selectedMonth.value.year != date.year) {
                         selectedMonth.value = date;
+                        context
+                            .read<TodoCountCubit>()
+                            .getMonthlyTodoCounts(date: date);
                       }
                     },
                     onTapDate: (date) {
@@ -197,14 +210,178 @@ class TodoScreen extends HookWidget {
             right: 24.w,
             child: SafeArea(
               child: IconButton.filled(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.8,
+                    ),
+                    context: context,
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(
+                        title: const Text("Create Task"),
+                      ),
+                      body: Padding(
+                        padding: 24.paddingAll(),
+                        child: ListView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          children: [
+                            TextInputField(
+                              placeholder: "ex: shafiulislam20@gmail.com",
+                              disabled: false,
+                              isRequired: true,
+                              labelText: "Title",
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (value.isMail != true) {
+                                  return 'Please enter valid email';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {},
+                            ),
+                            8.verticalSpace,
+                            TextInputField(
+                              placeholder: "ex: shafiulislam20@gmail.com",
+                              disabled: false,
+                              maxLines: 10,
+                              minLines: 3,
+                              labelText: "Description",
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (value.isMail != true) {
+                                  return 'Please enter valid email';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {},
+                            ),
+                            8.verticalSpace,
+                            TextInputField(
+                              placeholder: "ex: yyyy-mm-dd",
+                              disabled: false,
+                              isRequired: true,
+                              controller: useTaskCountCubit,
+                              keyboardType: TextInputType.datetime,
+                              labelText: "Date",
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (value.isMail != true) {
+                                  return 'Please enter valid email';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {},
+                            ),
+                            8.verticalSpace,
+                            TextInputField(
+                              placeholder: "ex: hh:mm:ss",
+                              disabled: false,
+                              isRequired: true,
+                              keyboardType: TextInputType.datetime,
+                              labelText: "Start Time",
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (value.isMail != true) {
+                                  return 'Please enter valid email';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {},
+                            ),
+                            8.verticalSpace,
+                            TextInputField(
+                              placeholder: "ex: hh:mm:ss",
+                              disabled: false,
+                              keyboardType: TextInputType.datetime,
+                              isRequired: true,
+                              labelText: "End Time",
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (value.isMail != true) {
+                                  return 'Please enter valid email';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {},
+                            ),
+                          ],
+                        ),
+                      ),
+                      bottomNavigationBar: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: Container(
+                          color: CColor.backgroundColor,
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                child: SafeArea(
+                                  child: Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Button.primary(
+                                            fill: ButtonFill.outline,
+                                            shape: ButtonShape.rectangular,
+                                            buttonSize: ButtonSize.large,
+                                            isBlock: true,
+                                            onPressed: () {
+                                              context.pop();
+                                            },
+                                            child: const Text("Cancel"),
+                                          ),
+                                        ),
+                                        12.horizontalSpace,
+                                        Flexible(
+                                          child: Button.primary(
+                                            fill: ButtonFill.solid,
+                                            shape: ButtonShape.rectangular,
+                                            buttonSize: ButtonSize.large,
+                                            isBlock: true,
+                                            onPressed: () {},
+                                            child: const Text("Create"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
                 icon: const Icon(
                   CustomIcons.add,
                   size: 32,
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
