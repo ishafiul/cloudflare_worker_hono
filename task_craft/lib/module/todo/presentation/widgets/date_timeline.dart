@@ -39,7 +39,9 @@ class _DateTileState extends State<DateTile> {
       width: 56.0,
       decoration: BoxDecoration(
         color: widget.isSelected ? CColor.primary : Colors.white,
-        border: widget.isToday ? Border.all(color: CColor.primary) : Border.all(color: CColor.border),
+        border: widget.isToday
+            ? Border.all(color: CColor.primary)
+            : Border.all(color: CColor.border),
       ),
       child: Material(
         color: Colors.transparent,
@@ -89,18 +91,22 @@ class _DateTileState extends State<DateTile> {
 }
 
 class DateTimeLine extends StatefulWidget {
-  const DateTimeLine({super.key, this.controller, this.visibleDate});
+  const DateTimeLine(
+      {super.key, this.controller, this.visibleDate, this.onTapDate});
 
   final DateTimelineController? controller;
 
   final void Function(DateTime date)? visibleDate;
+  final void Function(DateTime date)? onTapDate;
 
   @override
   State<DateTimeLine> createState() => _DateTimeLineState();
 }
+
 class _DateTimeLineState extends State<DateTimeLine> {
   final ScrollController _controller = ScrollController();
-  final ValueNotifier<DateTime?> _currentDateNotifier = ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> _currentDateNotifier =
+      ValueNotifier<DateTime?>(null);
 
   DateTime _getOnlyDate(DateTime date) {
     return DateTime(date.year, date.month, date.day);
@@ -120,21 +126,25 @@ class _DateTimeLineState extends State<DateTimeLine> {
 
   void _scrollListener() {
     if (_controller.hasClients) {
-      final double centerOffset = _controller.offset + (MediaQuery.of(context).size.width / 2);
-      final DateTime visibleDate = widget.controller!.calculateDateFromOffset(centerOffset);
+      final double centerOffset =
+          _controller.offset + (MediaQuery.of(context).size.width / 2);
+      final DateTime visibleDate =
+          widget.controller!.calculateDateFromOffset(centerOffset);
       widget.visibleDate?.call(visibleDate);
     }
   }
 
   void _updateCurrentDate(DateTime date) {
     _currentDateNotifier.value = _getOnlyDate(date);
+    widget.onTapDate?.call(date);
     logger.d(_currentDateNotifier.value);
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = AutoScrollController(
-      viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      viewportBoundaryGetter: () =>
+          Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
       axis: Axis.horizontal,
     );
 
@@ -155,13 +165,19 @@ class _DateTimeLineState extends State<DateTimeLine> {
             controller: _controller,
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
-              final DateTime currentDate = DateTime(2024).add(Duration(days: index));
+              final DateTime currentDate =
+                  DateTime(2024).add(Duration(days: index));
               final curentDateOnly = _getOnlyDate(currentDate);
               final isToday = DateTime(
-                currentDate.year, currentDate.month, currentDate.day,
-              ) == DateTime(
-                DateTime.now().year, DateTime.now().month, DateTime.now().day,
-              );
+                    currentDate.year,
+                    currentDate.month,
+                    currentDate.day,
+                  ) ==
+                  DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month,
+                    DateTime.now().day,
+                  );
 
               return wrapScrollTag(
                 index: index,
@@ -212,8 +228,8 @@ class DateTimelineController {
     );
 
     // jump to the current Date
-    _datePickerState!._controller.jumpTo(
-        _calculateDateOffset(_datePickerState?._currentDateNotifier.value  ?? DateTime.now()));
+    _datePickerState!._controller.jumpTo(_calculateDateOffset(
+        _datePickerState?._currentDateNotifier.value ?? DateTime.now()));
   }
 
   /// This function will animate the Timeline to the currently selected Date
@@ -223,7 +239,8 @@ class DateTimelineController {
 
     // animate to the current date
     _datePickerState!._controller.animateTo(
-      _calculateDateOffset(_datePickerState!._currentDateNotifier.value  ?? DateTime.now()),
+      _calculateDateOffset(
+          _datePickerState!._currentDateNotifier.value ?? DateTime.now()),
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );

@@ -7,6 +7,7 @@ import {CreateTodoDto, CreateTodoSchema} from "./dto/create-todo.dto";
 import {and, asc, eq, sql} from "drizzle-orm";
 import {FindTodosOptions, FindTodosOptionsSchema} from "./dto/get-todos.dto";
 import {v4 as uuidv4} from 'uuid';
+
 export class Todo extends RpcTarget {
 	#env: Bindings;
 	private readonly db: LibSQLDatabase;
@@ -117,6 +118,7 @@ export class Todo extends RpcTarget {
 	}
 
 	async getTodos(options: FindTodosOptions) {
+		console.log("todo0")
 		const validatedOptions = FindTodosOptionsSchema.parse(options);
 		console.log("todo1")
 		// Extract and use validated options
@@ -124,28 +126,69 @@ export class Todo extends RpcTarget {
 		try {
 			console.log("todo2")
 			console.log(page)
-			console.log(perPage)
+			console.log(taskDate)
 			const currentPage = Math.max(1, page);
 			const currentPerPage = Math.max(1, perPage);
 
 			const offset = (currentPage - 1) * currentPerPage;
 
 			console.log("todo3")
-			return await this.db
+			let res = await this.db
 				.select()
 				.from(todos)
-				.where(and(
-					eq(todos.userId, userId),
-					sql`DATE(${todos.taskDate}) = ${taskDate}`
-				))
+				.where(
+					and(
+						eq(todos.userId, userId),
+					)
+				)
 				.orderBy(asc(todos.startTime))
 				.limit(currentPerPage)
 				.offset(offset);
+			if (!res) {
+				res = [];
+			}
+			const todo: typeof res = [];
+
+			res.forEach((item) => {
+				try {
+					const date = new Date(item.taskDate).toISOString().split('T')[0];
+					if (date === taskDate) {
+						todo.push(item)
+					}
+				} catch (_) {
+
+				}
+			})
+
+			return todo;
+
 
 		} catch (error) {
 			throw new Error(`Failed to fetch todos for user with ID: ${userId}`);
 		}
 	}
+
+	async getTodoCountsForMonth({year, month, userId}: { year: string, month: string, userId: string }) {
+		const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString(); // First day of the month
+		const endDate = new Date(Number(year), Number(month), 0).toISOString();       // Last day of the month
+		console.log(year)
+		console.log(month)
+		try {
+			const res = await this.db.all(sql`
+			select ${todos.taskDate} as taskDate, COUNT(*) as count
+			from  ${todos}
+			where ${todos.userId} = ${userId}
+			and ${todos.taskDate} >= ${startDate}
+			and ${todos.taskDate} < ${endDate}
+			group by ${todos.taskDate}
+  		`);
+			console.log(res)
+			return res;
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 
 }
 

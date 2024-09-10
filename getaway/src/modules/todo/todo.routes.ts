@@ -2,7 +2,7 @@ import {OpenAPIHono, createRoute, z} from "@hono/zod-openapi"
 import {Bindings} from "../../config/bindings";
 import {zValidator} from "@hono/zod-validator";
 import {ApiCreateTodoDto, ApiCreateTodoDtoSchema} from "./dto/create-todo.dto";
-import {ApiTodoEntitySchema} from "./entity/create-todo.entity";
+import {ApiTodoEntitySchema, ApiTodosEntitySchema} from "./entity/create-todo.entity";
 import {ApiUpdateTodoDto, ApiUpdateTodoDtoSchema} from "./dto/update-todo.dto";
 import {FindTodosOptionsSchema} from "../../../../todo/src/dto/get-todos.dto";
 import {ApiFindTodosOptionsSchema} from "./dto/get-todos.dto";
@@ -73,7 +73,7 @@ todoRoutes.openapi(
             type CreateTodoDtoWithUserId = ApiCreateTodoDto & { userId: string };
             const authService = await c.env.AUTH_SERVICE.newAuth();
             const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
-            if(!userId) return c.json({message: "User not found"}, 403);
+            if (!userId) return c.json({message: "User not found"}, 403);
             const reBody: CreateTodoDtoWithUserId = {
                 ...body,
                 userId: userId,
@@ -180,7 +180,7 @@ todoRoutes.openapi(
             }
             const authService = await c.env.AUTH_SERVICE.newAuth();
             const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
-            if(!userId) return c.json({message: "User not found"}, 403);
+            if (!userId) return c.json({message: "User not found"}, 403);
             type UpdateTodoDtoWithUserId = ApiUpdateTodoDto & { userId: string };
             const reBody: UpdateTodoDtoWithUserId = {
                 ...body,
@@ -265,7 +265,7 @@ todoRoutes.openapi(
             }
             const authService = await c.env.AUTH_SERVICE.newAuth();
             const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
-            if(!userId) return c.json({message: "User not found"}, 403);
+            if (!userId) return c.json({message: "User not found"}, 403);
             if (todoEntity[0].userId !== userId) {
                 return c.json({message: "You don't have permission to update this todo item"}, 403);
             }
@@ -384,7 +384,7 @@ todoRoutes.openapi(
                 description: 'Respond with the list of todos',
                 content: {
                     'application/json': {
-                        schema: z.array(ApiTodoEntitySchema)
+                        schema: ApiTodosEntitySchema
                     }
                 }
             },
@@ -425,17 +425,28 @@ todoRoutes.openapi(
     }),
     async (c) => {
         // Extract query parameters
-        const {page, perPage, taskDate} = c.req.query() as {
+        let {page, perPage, taskDate} = c.req.query() as {
             page?: string;
             perPage?: string;
             taskDate?: string;
         };
+        console.log(taskDate);
+
+        if (taskDate && taskDate.includes('T')) {
+            // Split at 'T' to get the date part if 'T' is present
+            taskDate = taskDate.split('T')[0];
+        }
+
+        console.log(taskDate);
         try {
             const todoService = await c.env.TODO_SERVICE.newTodo();
             const authService = await c.env.AUTH_SERVICE.newAuth();
             // @ts-ignore
             const jwtPayload: { authID: string } = c.get('jwtPayload'); // Get the auth ID
             const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            if (!userId) {
+                return c.json({message: "User not found"}, 401);
+            }
             console.log("ok2")
             console.log(page)
             console.log(perPage)
@@ -444,20 +455,120 @@ todoRoutes.openapi(
                 page: parseInt(page ?? "1"),
                 perPage: parseInt(perPage ?? "20"),
                 taskDate: taskDate ?? new Date().toISOString().split('T')[0],
-                userId: userId // Required for filtering
+                userId: userId
             };
             console.log("ok3")
             // Fetch todos using the findTodos function
             const todos = await todoService.getTodos(FindTodosOptionsSchema.parse(options));
-            console.log("ok4")
-            if (todos.length === 0) {
-                return c.json({message: "No todos found"}, 404);
+            const apiTodos = ApiTodosEntitySchema.parse({
+                pageNumber: options.page,
+                perPageCount: options.perPage,
+                data: z.array(ApiTodoEntitySchema).parse(todos),
+            })
+            if (apiTodos) {
+                console.log("ok4")
+                return c.json(apiTodos, 200)
             }
-           /* const apiTodos = z.array(ApiTodoEntitySchema).parse(todos)*/
             console.log("ok5")
-            return c.json(todos, 200)
+
         } catch (error) {
+            console.error(error);
             return c.json({message: "Failed to retrieve todos"}, 422);
+        }
+    }
+);
+
+todoRoutes.openapi(
+    createRoute({
+        method: 'get',
+        path: '/month-todo-count',
+        tags: ['Todo'],
+        security: [{
+            "AUTH": []
+        }],
+        description: 'Get a count of todos for each date in a given month and year',
+        responses: {
+            200: {
+                description: 'Respond with the todo count per date in the specified month',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            month: z.string(), // ISO month string
+                            data: z.array(
+                                z.object({
+                                    date: z.string(), // ISO date string
+                                    count: z.number()
+                                })
+                            )
+                        })
+                    }
+                }
+            },
+            404: {
+                description: 'No todos found for the specified month',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            },
+            403: {
+                description: 'Forbidden',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            },
+            422: {
+                description: 'Validation error',
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string()
+                        })
+                    }
+                }
+            }
+        },
+        request: {
+            query: z.object({
+                year: z.string().length(4, 'Invalid year format'), // Expected year (e.g., "2024")
+                month: z.string().min(1).max(2, 'Invalid month format'), // Month as "1" to "12"
+            })
+        }
+    }),
+    async (c) => {
+        try {
+            // Extract query parameters
+            const {year, month} = c.req.query() as { year: string; month: string };
+            console.log(year)
+            console.log(month)
+            // Fetch user ID from auth
+            const authService = await c.env.AUTH_SERVICE.newAuth();
+            // @ts-ignore
+            const jwtPayload: { authID: string } = c.get('jwtPayload');
+            const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
+            console.log(year)
+            console.log(month)
+            // Fetch todos for the specified month and year
+            const todoService = await c.env.TODO_SERVICE.newTodo();
+            if (!userId) {
+                return c.json({message: 'User ID not found'}, 404);
+            }
+            console.log(year)
+            console.log(month)
+            const todos = todoService.getTodoCountsForMonth({year, month, userId});
+            console.log(year)
+            console.log(month)
+            return c.json(todos, 200);
+
+        } catch (error) {
+            return c.json({message: 'Failed to retrieve todos'}, 422);
         }
     }
 );

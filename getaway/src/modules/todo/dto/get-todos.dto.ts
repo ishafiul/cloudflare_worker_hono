@@ -7,7 +7,7 @@ export const ApiFindTodosOptionsSchema = z.object({
             in: 'query',
             description: 'The page number for pagination',
             required: false,
-            schema: { type: 'string', minimum: 1, default: 1 }
+            schema: { type: 'integer', minimum: 1, default: 1 }
         }
     }),
     perPage: z.string().optional().default("20").openapi({
@@ -25,7 +25,7 @@ export const ApiFindTodosOptionsSchema = z.object({
             in: 'query',
             description: 'Filter todos by task date (in YYYY-MM-DD format)',
             required: false,
-            schema: { type: 'string', format: 'date' },
+            schema: { type: 'string'},
             example: new Date().toISOString().split('T')[0],
         }
     })
