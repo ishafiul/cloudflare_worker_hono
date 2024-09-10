@@ -171,7 +171,6 @@ class CustomIcons {
   static const IconData usercircle = IconData(0xe893, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData usercontact = IconData(0xe894, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData userset = IconData(0xe895, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData vector = IconData(0xe896, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData video = IconData(0xe897, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData aa = IconData(0xe898, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData add = IconData(0xe899, fontFamily: _kFontFam, fontPackage: _kFontPkg);
@@ -185,5 +184,9 @@ class CustomIcons {
   static const IconData google_square = IconData(0xe8a1, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData google_circle = IconData(0xe8a2, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData facebook_filled = IconData(0xe8a3, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData delete_outline = IconData(0xe8a5, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData copy_tone = IconData(0xe8a6, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData copy_filled = IconData(0xe8a7, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData copy_outline = IconData(0xe8a8, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData logout = IconData(0xe8af, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }
