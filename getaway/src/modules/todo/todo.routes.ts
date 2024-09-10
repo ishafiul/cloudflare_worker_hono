@@ -6,6 +6,7 @@ import {ApiTodoEntitySchema, ApiTodosEntitySchema} from "./entity/create-todo.en
 import {ApiUpdateTodoDto, ApiUpdateTodoDtoSchema} from "./dto/update-todo.dto";
 import {FindTodosOptionsSchema} from "../../../../todo/src/dto/get-todos.dto";
 import {ApiFindTodosOptionsSchema} from "./dto/get-todos.dto";
+import {TodosCountSchema} from "./entity/todo-counts.entity";
 
 
 const todoRoutes = new OpenAPIHono<{ Bindings: Bindings }>()
@@ -175,12 +176,12 @@ todoRoutes.openapi(
             if (!todoExists) {
                 return c.json({message: "Todo item not found"}, 404); // Return 404 if not found
             }
-            if (todoExists[0].userId !== jwtPayload.authID) {
-                return c.json({message: "You don't have permission to update this todo item"}, 403);
-            }
             const authService = await c.env.AUTH_SERVICE.newAuth();
             const userId = await authService.findUserIdByAuthId(jwtPayload.authID);
             if (!userId) return c.json({message: "User not found"}, 403);
+            if (todoExists[0].userId !== userId) {
+                return c.json({message: "You don't have permission to update this todo item"}, 403);
+            }
             type UpdateTodoDtoWithUserId = ApiUpdateTodoDto & { userId: string };
             const reBody: UpdateTodoDtoWithUserId = {
                 ...body,
@@ -492,15 +493,7 @@ todoRoutes.openapi(
                 description: 'Respond with the todo count per date in the specified month',
                 content: {
                     'application/json': {
-                        schema: z.object({
-                            month: z.string(), // ISO month string
-                            data: z.array(
-                                z.object({
-                                    date: z.string(), // ISO date string
-                                    count: z.number()
-                                })
-                            )
-                        })
+                        schema: TodosCountSchema
                     }
                 }
             },
@@ -563,9 +556,15 @@ todoRoutes.openapi(
             console.log(year)
             console.log(month)
             const todos = await todoService.getTodoCountsForMonth({year, month, userId});
-            console.log(year)
-            console.log(month)
-            return c.json(todos, 200);
+            if (!todos) {
+                return c.json({message: 'No todos found for the specified month'}, 404);
+            }
+            console.log(todos)
+            const parsedTodos = TodosCountSchema.parse({
+                month: `${year}-${month}`,
+                data: todos
+            });
+            return c.json(parsedTodos, 200);
 
         } catch (error) {
             return c.json({message: 'Failed to retrieve todos,,,'}, 422);

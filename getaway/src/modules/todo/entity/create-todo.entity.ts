@@ -31,6 +31,8 @@ export const ApiTodoEntitySchema = z.object({
     status: z.enum(['pending', 'completed', 'in-progress']).optional(),
     setAlarmBeforeMin: z.number().optional(),
 }).openapi('Todo')
+
+
 export const ApiTodosEntitySchema = z.object({
     pageNumber: z.number(),
     perPageCount: z.number(),
