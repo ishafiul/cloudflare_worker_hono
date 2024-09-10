@@ -7,6 +7,8 @@ import 'package:task_craft/module/auth/cubit/logout/logout_cubit.dart';
 import 'package:task_craft/module/auth/cubit/request_otp/request_otp_cubit.dart';
 import 'package:task_craft/module/auth/cubit/verify_otp/verify_otp_cubit.dart';
 import 'package:task_craft/module/todo/cubit/get_todos/get_todos_cubit.dart';
+import 'package:task_craft/module/todo/cubit/todo_count/todo_count_cubit.dart';
+import 'package:task_craft/module/todo/cubit/update_todo/update_todo_cubit.dart';
 import 'package:task_craft/module/user/domain/cubit/user_me/user_me_cubit.dart';
 
 /// [Provider] is a [Singleton] that will provide [List] of [BlocProvider].
@@ -34,6 +36,9 @@ class Provider {
     ),
     BlocProvider<GetTodosCubit>(
       create: (BuildContext context) => GetTodosCubit(),
+    ),
+    BlocProvider<TodoCountCubit>(
+      create: (BuildContext context) => TodoCountCubit(),
     ),
     BlocProvider<UpdateTodoCubit>(
       create: (BuildContext context) => UpdateTodoCubit(),
