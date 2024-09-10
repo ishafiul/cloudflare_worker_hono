@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
+import 'package:task_craft/api/models/todo.dart';
 import 'package:task_craft/api/models/todos.dart';
 import 'package:task_craft/api/rest_client.dart';
 import 'package:task_craft/bootstrap.dart';
@@ -25,4 +26,25 @@ class GetTodosCubit extends Cubit<GetTodosState> {
       emit(GetTodosFailed());
     }
   }
+
+  void updateTodoInList({required Todo todo}) {
+    // Return if the state is not `GetTodosSuccess`
+    if (state is! GetTodosSuccess) return;
+    logger.d(todo);
+    final currentState = state as GetTodosSuccess;
+    final todos = currentState.todos;
+
+    // Create a new list by updating only the necessary todo
+    final updatedTodos = todos.copyWith(
+      data: todos.data
+          .map((e) => e.id == todo.id ? todo : e)
+          .toList(),
+    );
+
+    logger.d(updatedTodos);
+
+    // Emit the updated state
+    emit(GetTodosSuccess(updatedTodos));
+  }
+
 }
