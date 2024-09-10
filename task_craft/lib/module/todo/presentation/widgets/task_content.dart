@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:task_craft/app/view/app.dart';
 import 'package:task_craft/bootstrap.dart';
 import 'package:task_craft/core/config/colors.dart';
+import 'package:task_craft/core/config/custom_icons_icons.dart';
 import 'package:task_craft/core/utils/extention.dart';
 import 'package:task_craft/core/widgets/bottom_sheet/scrollable_bottom_sheet.dart';
+import 'package:task_craft/core/widgets/button/button.dart';
+import 'package:task_craft/core/widgets/button/enums.dart';
 import 'package:task_craft/core/widgets/devider/divider.dart';
 import 'package:task_craft/module/todo/cubit/get_todos/get_todos_cubit.dart';
 import 'package:task_craft/module/todo/presentation/widgets/title.dart';
@@ -22,6 +27,31 @@ class TaskContent extends HookWidget {
 
   final Size extraTopSize;
   final DateTime date;
+
+  String _formatTaskDate(String taskDate, String startTime, String endTime) {
+    try {
+      // Parse the iOS date string (taskDate)
+      final DateTime parsedDate = DateTime.parse(taskDate);
+
+      // Format the date to 'dd/MM/yyyy'
+      final String formattedDate = DateFormat('dd/MM/yyyy').format(parsedDate);
+
+      // Parse the start and end times
+      final DateTime parsedStartTime = DateTime.parse(startTime);
+      final DateTime parsedEndTime = DateTime.parse(endTime);
+
+      // Format the start and end times to 'hh:mm a'
+      final String formattedStartTime =
+          DateFormat('h:mm a').format(parsedStartTime);
+      final String formattedEndTime =
+          DateFormat('h:mm a').format(parsedEndTime);
+
+      // Combine the formatted date and time
+      return '$formattedDate, $formattedStartTime - $formattedEndTime';
+    } catch (e) {
+      return 'Invalid date or time';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +70,7 @@ class TaskContent extends HookWidget {
               (extraTopSize.height + 56 + 56),
           child: BlocBuilder<GetTodosCubit, GetTodosState>(
             builder: (context, state) {
-              if(state is GetTodosSuccess) {
+              if (state is GetTodosSuccess) {
                 logger.i(state.todos);
                 return FixedTimeline.tileBuilder(
                   theme: TimelineThemeData(
@@ -63,7 +93,17 @@ class TaskContent extends HookWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '10:00 AM',
+                            () {
+                              try {
+                                return DateFormat('h:mm a').format(
+                                  DateTime.parse(
+                                    state.todos.data[index].startTime,
+                                  ),
+                                );
+                              } catch (_) {
+                                return "--:-- --";
+                              }
+                            }.call(),
                             style: context.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
@@ -72,7 +112,17 @@ class TaskContent extends HookWidget {
                             text: 'to',
                           ),
                           Text(
-                            '10:30 AM',
+                            () {
+                              try {
+                                return DateFormat('h:mm a').format(
+                                  DateTime.parse(
+                                    state.todos.data[index].endTime,
+                                  ),
+                                );
+                              } catch (_) {
+                                return "--:-- --";
+                              }
+                            }.call(),
                             style: context.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
@@ -89,10 +139,110 @@ class TaskContent extends HookWidget {
                         color: Colors.white,
                         child: InkWell(
                           onTap: () {
-                            showBottomSheet(
+                            showModalBottomSheet(
+                              isScrollControlled: true,
                               context: context,
                               builder: (context) => ScrollableBottomSheet(
-                                child: List.generate(100, (index) => Text("s")),
+                                initialChildSize: 0.4,
+                                child: [
+                                  Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _formatTaskDate(
+                                            state.todos.data[index].taskDate,
+                                            state.todos.data[index].startTime,
+                                            state.todos.data[index].endTime,
+                                          ),
+                                        ),
+                                        Text(
+                                          state.todos.data[index].title.toSentenceCase,
+                                          style:
+                                              context.textTheme.headlineMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  8.verticalSpace,
+                                  Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: Text(
+                                      state.todos.data[index].description,
+                                      style: context.textTheme.titleLarge,
+                                    ),
+                                  ),
+                                  8.verticalSpace,
+                                  Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: CDivider.base(
+                                      axis: Axis.horizontal,
+                                    ),
+                                  ),
+                                  16.verticalSpace,
+                                  Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: Row(
+                                      children: [
+                                        Button.danger(
+                                          fill: ButtonFill.outline,
+                                          child: Row(
+                                            children: [
+                                              Icon(CustomIcons.delete_outline),
+                                              4.horizontalSpace,
+                                              Text("Delete"),
+                                            ],
+                                          ),
+                                          onPressed: () {},
+                                        ),
+                                        const Spacer(),
+                                        Button.primary(
+                                          fill: ButtonFill.outline,
+                                          child: Row(
+                                            children: [
+                                              Icon(CustomIcons.copy_outline),
+                                              4.horizontalSpace,
+                                              Text("Dublicate"),
+                                            ],
+                                          ),
+                                          onPressed: () {},
+                                        ),
+                                        const Spacer(),
+                                        Button.success(
+                                          fill: ButtonFill.outline,
+                                          child: Row(
+                                            children: [
+                                              Icon(CustomIcons.check),
+                                              4.horizontalSpace,
+                                              Text("Complete"),
+                                            ],
+                                          ),
+                                          onPressed: () {},
+                                        )
+                                      ].withSpaceBetween(width: 4),
+                                    ),
+                                  ),
+                                  12.verticalSpace,
+                                  Padding(
+                                    padding: 24.paddingHorizontal(),
+                                    child: Button.primary(
+                                      fill: ButtonFill.solid,
+                                      buttonSize: ButtonSize.large,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(CustomIcons.fillin),
+                                          12.horizontalSpace,
+                                          Text("Edit"),
+                                        ],
+                                      ),
+                                      onPressed: () {},
+                                    ),
+                                  )
+                                ],
                               ),
                             );
                           },
@@ -104,25 +254,49 @@ class TaskContent extends HookWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const TaskTitle(),
+                                  TaskTitle(
+                                    todo: state.todos.data[index],
+                                  ),
                                   CDivider.base(axis: Axis.horizontal),
-                                  const Text(
-                                    'Task Description',
-                                  ),
-                                  const Text(
-                                    'Task Description',
-                                  ),
-                                  const Text(
-                                    'Task Description',
-                                  ),
-                                  const Text(
-                                    'Task Description',
-                                  ),
-                                  const Text(
-                                    'Task Description',
-                                  ),
-                                  const Text(
-                                    'Task Description',
+                                  Text(
+                                    (() {
+                                      try {
+                                        final startTime =
+                                            state.todos.data[index].startTime;
+                                        final endTime =
+                                            state.todos.data[index].endTime;
+
+                                        if (startTime.isEmpty ||
+                                            endTime.isEmpty) {
+                                          return 'No time available';
+                                        }
+
+                                        // Parse both startTime and endTime
+                                        final parsedEndTime =
+                                            DateTime.parse(endTime);
+                                        final currentTime = DateTime.now();
+
+                                        // Calculate remaining time in minutes
+                                        final difference = parsedEndTime
+                                            .difference(currentTime)
+                                            .inMinutes;
+
+                                        // If the task is overdue
+                                        if (difference <= 0) {
+                                          return 'Task is overdue!';
+                                        }
+
+                                        // Display the remaining time
+                                        return 'You have $difference minutes to complete the task';
+                                      } catch (e) {
+                                        // Fallback for invalid date strings or errors
+                                        return 'Invalid start and end times. Please specify the times for your task.';
+                                      }
+                                    })(),
+                                    style:
+                                        context.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -147,7 +321,6 @@ class TaskContent extends HookWidget {
               }
 
               return SizedBox();
-
             },
           ),
         ),
