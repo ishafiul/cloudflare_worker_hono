@@ -53,6 +53,8 @@ class BaseInterceptor extends Interceptor {
         return handler.resolve(await dio.fetch(err.requestOptions));
       } on DioException catch (e) {
         if (e.response?.statusCode == 401) {
+          final appState = getIt<AppStateService>();
+          await appState.updateAccessToken('');
           router.go('/auth');
           return;
         }

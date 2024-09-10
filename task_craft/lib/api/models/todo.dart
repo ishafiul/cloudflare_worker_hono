@@ -19,9 +19,10 @@ class Todo with _$Todo {
     required String startTime,
     required String endTime,
     required String completedAt,
-    required String taskDate,
     required TodoStatus status,
     required num setAlarmBeforeMin,
+    @Default('2024-09-10T00:00:00.000Z')
+    String taskDate,
   }) = _Todo;
   
   factory Todo.fromJson(Map<String, Object?> json) => _$TodoFromJson(json);

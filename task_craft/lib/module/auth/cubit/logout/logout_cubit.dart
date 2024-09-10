@@ -24,12 +24,13 @@ class LogoutCubit extends Cubit<LogoutState> {
 
      try {
         await appState.updateAccessToken('');
+        emit(
+          LogoutSuccess(),
+        );
       } catch (e) {
         print(e);
       }
-      emit(
-        LogoutSuccess(),
-      );
+
 
     } catch (e) {
       String errorMessage;

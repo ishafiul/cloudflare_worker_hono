@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:task_craft/bootstrap.dart';
 import 'package:task_craft/core/config/colors.dart';
 import 'package:task_craft/core/config/custom_icons_icons.dart';
 import 'package:task_craft/core/utils/extention.dart';
@@ -29,6 +28,8 @@ class TodoScreen extends HookWidget {
           Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
       axis: Axis.horizontal,
     );
+    final ValueNotifier<DateTime> selectedMonth =
+        ValueNotifier<DateTime>(DateTime.now());
     final ValueNotifier<DateTime> selectedDate =
         ValueNotifier<DateTime>(DateTime.now());
     useEffect(() {
@@ -61,9 +62,9 @@ class TodoScreen extends HookWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ValueListenableBuilder(
-                        valueListenable: selectedDate,
-                        builder:
-                            (BuildContext context, DateTime value, Widget? child) {
+                        valueListenable: selectedMonth,
+                        builder: (BuildContext context, DateTime value,
+                            Widget? child) {
                           return Text(
                             DateFormat('MMM yyyy').format(value),
                             style: context.textTheme.titleLarge,
@@ -85,7 +86,8 @@ class TodoScreen extends HookWidget {
                               );
                               selectedDate.value = DateTime.now();
                               selectedIndex.value = initialIndex;*/
-                              await dateController.animateToDate(DateTime.now());
+                              await dateController
+                                  .animateToDate(DateTime.now());
                             },
                           ),
                           Button.primary(
@@ -117,7 +119,8 @@ class TodoScreen extends HookWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           SfDateRangePicker(
-                                            backgroundColor: CColor.backgroundColor,
+                                            backgroundColor:
+                                                CColor.backgroundColor,
                                             showNavigationArrow: true,
                                             headerHeight: 56,
                                             headerStyle:
@@ -130,7 +133,8 @@ class TodoScreen extends HookWidget {
                                                   dateRangePickerSelectionChangedArgs,
                                             ) async {
                                               context.pop();
-                                              await dateController.animateToDate(
+                                              await dateController
+                                                  .animateToDate(
                                                 DateTime.parse(
                                                   dateRangePickerSelectionChangedArgs
                                                       .value
@@ -164,14 +168,26 @@ class TodoScreen extends HookWidget {
                   child: DateTimeLine(
                     controller: dateController,
                     visibleDate: (date) {
+                      if (selectedMonth.value.month != date.month ||
+                          selectedMonth.value.year != date.year) {
+                        selectedMonth.value = date;
+                      }
+                    },
+                    onTapDate: (date) {
                       selectedDate.value = date;
                     },
                   ),
                 ),
                 if (dateTimeLineConstraints.value != null)
-                  TaskContent(
-                    extraTopSize: dateTimeLineConstraints.value!,
-                    scaafoldContext: context,
+                  ValueListenableBuilder(
+                    valueListenable: selectedDate,
+                    builder:
+                        (BuildContext context, DateTime value, Widget? child) {
+                      return TaskContent(
+                        extraTopSize: dateTimeLineConstraints.value!,
+                        date: value,
+                      );
+                    },
                   ),
               ],
             ),
