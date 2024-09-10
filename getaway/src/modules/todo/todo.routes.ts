@@ -481,8 +481,8 @@ todoRoutes.openapi(
 todoRoutes.openapi(
     createRoute({
         method: 'get',
-        path: '/month-todo-count',
-        tags: ['Todo'],
+        path: '/analysis/month-todo-count',
+        tags: ['Todo Analysis'],
         security: [{
             "AUTH": []
         }],
@@ -562,13 +562,13 @@ todoRoutes.openapi(
             }
             console.log(year)
             console.log(month)
-            const todos = todoService.getTodoCountsForMonth({year, month, userId});
+            const todos = await todoService.getTodoCountsForMonth({year, month, userId});
             console.log(year)
             console.log(month)
             return c.json(todos, 200);
 
         } catch (error) {
-            return c.json({message: 'Failed to retrieve todos'}, 422);
+            return c.json({message: 'Failed to retrieve todos,,,'}, 422);
         }
     }
 );

@@ -4,9 +4,10 @@ import {createClient} from "@libsql/client";
 import {Bindings} from "./config/bindings";
 import {todos} from "../drizzle/schema";
 import {CreateTodoDto, CreateTodoSchema} from "./dto/create-todo.dto";
-import {and, asc, eq, sql} from "drizzle-orm";
+import {and, asc, eq, gte, lt, SQL, sql} from "drizzle-orm";
 import {FindTodosOptions, FindTodosOptionsSchema} from "./dto/get-todos.dto";
 import {v4 as uuidv4} from 'uuid';
+import {SQLiteSyncDialect} from "drizzle-orm/sqlite-core";
 
 export class Todo extends RpcTarget {
 	#env: Bindings;
@@ -30,7 +31,9 @@ export class Todo extends RpcTarget {
 			throw new Error('TURSO_AUTH_TOKEN is not defined');
 		}
 
-		return drizzle(createClient({url, authToken}));
+		return drizzle(createClient({url, authToken}), {
+			logger: true,
+		});
 	}
 
 	async create(createTodoDto: CreateTodoDto) {
@@ -168,24 +171,69 @@ export class Todo extends RpcTarget {
 		}
 	}
 
+	private generateMonthDates(year: number, month: number) {
+		const dates: string[] = [];
+		const numDays = new Date(year, month, 0).getDate(); // Number of days in the month
+
+		for (let day = 1; day <= numDays; day++) {
+			const date = new Date(year, month - 1, day);
+			dates.push(date.toISOString().split('T')[0]); // YYYY-MM-DD format
+		}
+
+		return dates;
+	}
+
 	async getTodoCountsForMonth({year, month, userId}: { year: string, month: string, userId: string }) {
 		const startDate = new Date(Number(year), Number(month) - 1, 1).toISOString(); // First day of the month
 		const endDate = new Date(Number(year), Number(month), 0).toISOString();       // Last day of the month
-		console.log(year)
-		console.log(month)
+
+		const dates = this.generateMonthDates(Number(year), Number(month));
+
 		try {
-			const res = await this.db.all(sql`
-			select ${todos.taskDate} as taskDate, COUNT(*) as count
-			from  ${todos}
-			where ${todos.userId} = ${userId}
-			and ${todos.taskDate} >= ${startDate}
-			and ${todos.taskDate} < ${endDate}
-			group by ${todos.taskDate}
-  		`);
-			console.log(res)
-			return res;
+			if (!this.db) {
+				console.log('Database connection is not initialized');
+				return;
+			}
+
+			let res: {taskDate: string; count: number; }[] = await this.db
+				.select({
+					taskDate: todos.taskDate,
+					count: sql<number>`COUNT(*)` // Use the SQL helper for COUNT
+				})
+				.from(todos)
+				.where(
+					and(
+						eq(todos.userId, userId),
+						gte(todos.taskDate, startDate),
+						lt(todos.taskDate, endDate)
+					)
+				)
+				.groupBy(todos.taskDate);
+
+			// Initialize a result object with zero counts for all dates
+
+			if (!res) {
+				return []
+			}
+			const results: { taskDate: string; count: number; }[] = dates.map(date => ({
+				taskDate: date,
+				count: 0
+			}));
+
+			const resultsMap = new Map(results.map(item => [item.taskDate, item]));
+
+			res.forEach(row => {
+				const formattedDate = new Date(row.taskDate).toISOString().split('T')[0];
+				if (resultsMap.has(formattedDate)) {
+					resultsMap.get(formattedDate)!.count = row.count;
+				}
+			});
+
+			// Return results as an array
+			return Array.from(resultsMap.values());
+
 		} catch (error) {
-			console.log(error)
+			console.error('Error during query execution:', error);
 		}
 	}
 
@@ -207,3 +255,7 @@ export default {
 }
 
 
+interface TodoCountRecord {
+	date: string;
+	count: number;
+}
