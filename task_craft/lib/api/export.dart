@@ -14,14 +14,14 @@ export 'models/refresh_token_dto.dart';
 export 'models/todo.dart';
 export 'models/create_todo_dto.dart';
 export 'models/todos.dart';
+export 'models/todo_count_entity.dart';
+export 'models/todos_count_entity.dart';
 export 'models/post_auth_create_device_uuid_response.dart';
 export 'models/post_auth_req_otp_response.dart';
 export 'models/post_auth_verify_otp_response.dart';
 export 'models/delete_auth_logout_response.dart';
 export 'models/post_auth_refresh_token_response.dart';
 export 'models/delete_todo_todo_id_response.dart';
-export 'models/data.dart';
-export 'models/get_todo_analysis_month_todo_count_response.dart';
 export 'models/todo_status.dart';
 export 'models/create_todo_dto_status.dart';
 // Root client

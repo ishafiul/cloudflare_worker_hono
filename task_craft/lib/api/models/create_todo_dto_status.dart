@@ -4,7 +4,8 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-@JsonEnum()
+@JsonEnum(alwaysCreate: true)
+
 enum CreateTodoDtoStatus {
   @JsonValue('pending')
   pending('pending'),

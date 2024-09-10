@@ -203,6 +203,39 @@
                     "perPageCount",
                     "data"
                 ]
+            },
+            "TodoCountEntity": {
+                "type": "object",
+                "properties": {
+                    "taskDate": {
+                        "type": "string"
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "taskDate",
+                    "count"
+                ]
+            },
+            "TodosCountEntity": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TodoCountEntity"
+                        }
+                    }
+                },
+                "required": [
+                    "month",
+                    "data"
+                ]
             }
         },
         "parameters": {}
@@ -974,34 +1007,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "month": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "date": {
-                                                        "type": "string"
-                                                    },
-                                                    "count": {
-                                                        "type": "number"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "date",
-                                                    "count"
-                                                ]
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "month",
-                                        "data"
-                                    ]
+                                    "$ref": "#/components/schemas/TodosCountEntity"
                                 }
                             }
                         }

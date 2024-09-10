@@ -1,12 +1,15 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:task_craft/api/models/todo_count_entity.dart';
 import 'package:task_craft/bootstrap.dart';
 import 'package:task_craft/core/config/colors.dart';
 import 'package:task_craft/core/utils/extention.dart';
 import 'package:task_craft/core/widgets/devider/divider.dart';
+import 'package:task_craft/module/todo/cubit/todo_count/todo_count_cubit.dart';
 
 class DateTile extends StatefulWidget {
   final DateTime date;
@@ -33,60 +36,79 @@ class _DateTileState extends State<DateTile> {
     final String dayName = DateFormat('E').format(widget.date);
 
     return Container(
-      key: GlobalObjectKey(widget.date),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      height: 56,
-      width: 56.0,
-      decoration: BoxDecoration(
-        color: widget.isSelected ? CColor.primary : Colors.white,
-        border: widget.isToday
-            ? Border.all(color: CColor.primary)
-            : Border.all(color: CColor.border),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: widget.onTap,
-          child: badges.Badge(
-            badgeStyle: badges.BadgeStyle(
-              shape: badges.BadgeShape.square,
-              badgeColor: CColor.primary.shade200,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(4),
-                bottomLeft: Radius.circular(4),
+        key: GlobalObjectKey(widget.date),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        height: 56,
+        width: 56.0,
+        decoration: BoxDecoration(
+          color: widget.isSelected ? CColor.primary : Colors.white,
+          border: widget.isToday
+              ? Border.all(color: CColor.primary)
+              : Border.all(color: CColor.border),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            child: badges.Badge(
+              badgeStyle: badges.BadgeStyle(
+                shape: badges.BadgeShape.square,
+                badgeColor: CColor.primary.shade200,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                  bottomLeft: Radius.circular(4),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
-            ),
-            position: badges.BadgePosition.bottomEnd(bottom: -1, end: -8),
-            badgeContent: const Text(
-              '00',
-              style: TextStyle(color: Colors.white),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dayNumber,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: widget.isSelected ? Colors.white : CColor.text,
+              position: badges.BadgePosition.bottomEnd(bottom: -1, end: -8),
+              badgeContent: BlocBuilder<TodoCountCubit, TodoCountState>(
+                builder: (context, state) {
+                  // Optimized - Cache the formatted date outside the BlocBuilder
+                  final formattedDate =
+                      DateFormat('yyyy-MM-dd').format(widget.date);
+
+                  // Optimized count logic
+                  int count = 0;
+                  if (state is TodoCountSuccess) {
+                    count = state.counts.data
+                        .firstWhere(
+                          (element) => element.taskDate == formattedDate,
+                          orElse: () =>
+                              const TodoCountEntity(taskDate: '', count: 0),
+                        )
+                        .count;
+                  }
+
+                  return Text(
+                    "$count",
+                    style: const TextStyle(color: Colors.white),
+                  );
+                },
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      dayNumber,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: widget.isSelected ? Colors.white : CColor.text,
+                      ),
                     ),
-                  ),
-                  Text(
-                    dayName,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: CColor.light,
+                    Text(
+                      dayName,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: CColor.light,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

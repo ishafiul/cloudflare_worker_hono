@@ -23,4 +23,5 @@ class CreateTodoDto with _$CreateTodoDto {
   }) = _CreateTodoDto;
   
   factory CreateTodoDto.fromJson(Map<String, Object?> json) => _$CreateTodoDtoFromJson(json);
+
 }
